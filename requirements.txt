@@ -1,0 +1,9 @@
+python-dotenv>=1.0
+pyyaml>=6.0
+pandas>=2.0
+openai>=1.0
+tiktoken>=0.7
+networkx>=3.2
+matplotlib>=3.8
+requests>=2.31
+tqdm>=4.66

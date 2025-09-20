@@ -1,22 +1,15 @@
 # Obsidian Agent
 
-This is a context-aware GPT-powered automation tool for processing and linking notes in an Obsidian vault.
+Automation stack for an Obsidian vault. Python agents (summarizer, linker, planner, insights, dashboards) with Windows `.bat` launchers.
 
-## Features
-- Adds `related:` YAML links based on semantic similarity
-- Inserts `See also:` sections in note body
-- Logs relationships (CSV & JSON)
-- Adds bidirectional links
-- Supports masked GPT summaries (optional)
+## What’s here
+- **Agents**: Python scripts for summarizing, linking, planning, evaluating, and dashboards.
+- **Launchers**: `run_*.bat` entrypoints (verbose/debug launchers archived in `_archive/launchers_debug`).
+- **Vault**: Optional Obsidian content under `vault/` (gitignored by default).
+- **Cleanup**: `cleanup.ps1` makes a backup, reports, purges Python caches, and can archive debug launchers.
 
-## Structure
-- `src/` — Python scripts (e.g. `main.py`)
-- `scripts/` — Automation helpers (`.bat`, `.sh`)
-- `vault/` — Your Obsidian vault or test notes
-- `data/` — Logs and index files
-- `logs/` — Execution and error logs
-
-## Usage
-1. Set up `.env` with your OpenAI key and vault path.
-2. Activate the virtual environment: `venv\Scripts\activate`
-3. Run: `python src/main.py`
+## Quickstart (Windows)
+```powershell
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
