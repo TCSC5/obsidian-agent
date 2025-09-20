@@ -1,0 +1,14 @@
+other_label: Other – undefined
+areas:
+  - Career
+  - Health
+  - Learning & Growth
+  - Personal Finance
+resources:
+  - Books & Articles
+  - Prompts
+  - Research
+  - Templates
+holding_folders:
+  areas: Areas/_Other
+  resources: Resources/_Other

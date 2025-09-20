@@ -1,0 +1,21 @@
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+
+# Log files
+*.log
+logs/
+*.csv
+*.json
+
+# Obsidian vault cache
+.vault.*
+.obsidian/
