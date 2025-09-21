@@ -14,3 +14,17 @@ python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
  
+```
+
+## WSL Quickstart
+```bash
+# Install nvm and Node 20 (Linux)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+. "$HOME/.nvm/nvm.sh"
+nvm install 20
+nvm use 20
+
+# Codex CLI
+npm install -g @openai/codex
+codex --version
+```
