@@ -347,6 +347,17 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="Don't write/move, just show actions")
     args = ap.parse_args()
 
+    # Enhanced permissions checking for PARA routing
+    try:
+        from permissions_utils import preflight_check
+        required_dirs = ["Areas", "Resources", "Projects", "Archives", "Summaries", "Express"]
+        if not preflight_check(VAULT, required_dirs):
+            print("❌ Permission check failed for PARA Router")
+            print("   Please ensure vault directories are accessible.")
+            return
+    except ImportError:
+        print("⚠️  Permissions utilities not available, proceeding without validation...")
+
     taxonomy = load_taxonomy()
 
     if args.file:

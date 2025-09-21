@@ -1,6 +1,6 @@
 # Obsidian Agent
 
-Automation stack for an Obsidian vault. Python agents (summarizer, linker, planner, insights, dashboards) with Windows `.bat` launchers.
+Automation stack for an Obsidian vault. Python agents (summarizer, linker, planner, insights, dashboards) with Windows `.bat` launchers and comprehensive permissions checking.
 
 ## What’s here
 - **Agents**: Python scripts for summarizing, linking, planning, evaluating, and dashboards.
@@ -27,4 +27,16 @@ nvm use 20
 # Codex CLI
 npm install -g @openai/codex
 codex --version
+
+# Check permissions
+python permissions_checker.py --vault-path "/path/to/vault"
 ```
+
+## Permissions Checking
+
+The system includes comprehensive file system permission validation:
+- **Automatic**: Agents check permissions before execution  
+- **Manual**: Use `prep_summarizer_dirs.bat` or `run_permissions_check.bat`
+- **Detailed**: Run `python permissions_checker.py` for full analysis
+
+See `PERMISSIONS.md` for complete documentation.
