@@ -249,6 +249,18 @@ def main():
     ap.add_argument("--strip-yaml", action="store_true")
     args=ap.parse_args()
 
+    # Enhanced permissions checking
+    try:
+        from permissions_utils import preflight_check
+        vault_path = VAULT  # Use the global VAULT variable
+        required_dirs = ["Summaries", "Express/pitch", "logs"]
+        if not preflight_check(vault_path, required_dirs):
+            print("❌ Permission check failed for Summarizer Agent")
+            print("   Please run prep_summarizer_dirs.bat or check vault permissions.")
+            return
+    except ImportError:
+        print("⚠️  Permissions utilities not available, proceeding without validation...")
+
     created=updated=skipped=generated=0
     if args.mode=="generate":
         if not SUMMARIES.exists() or not any(SUMMARIES.glob("summary_*.md")):
