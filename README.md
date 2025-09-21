@@ -13,3 +13,4 @@ Automation stack for an Obsidian vault. Python agents (summarizer, linker, plann
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
+ 
