@@ -201,6 +201,18 @@ def main():
     data_dir  = vault / data_rel
     logs_dir  = vault / logs_rel
 
+    # Enhanced permissions checking before proceeding
+    try:
+        from permissions_utils import preflight_check
+        required_dirs = [sums_rel, out_rel, data_rel, logs_rel]
+        if not preflight_check(vault, required_dirs):
+            print("❌ Permission check failed. Please run prep_summarizer_dirs.bat or check vault permissions.")
+            print(f"   Vault path: {vault}")
+            print("   Required directories:", ", ".join(required_dirs))
+            return
+    except ImportError:
+        print("⚠️  Permissions utilities not available, proceeding without validation...")
+
     out_dir.mkdir(parents=True, exist_ok=True)
     logs_dir.mkdir(parents=True, exist_ok=True)
 
