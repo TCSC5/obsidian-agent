@@ -5,8 +5,8 @@ on:
 
 jobs:
   build:
-    name: Install (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    name: Install (Python ${{ matrix.python-version }})
     strategy:
       matrix:
         python-version: ["3.11"]
