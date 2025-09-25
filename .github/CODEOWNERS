@@ -1,0 +1,4 @@
+# Guardrails: require explicit approval on repo config & CI
+.github/workflows/**   @3mcee5
+.github/**             @3mcee5
+docs/codex/**          @3mcee5
