@@ -1,0 +1,43 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # 1) Python packages (pip)
+  - package-ecosystem: "pip"
+    directory: "/"                       # adjust if your requirements.txt lives elsewhere
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 10
+    rebase-strategy: "auto"
+    labels: ["deps", "python"]
+    reviewers: ["TCSC5"]                 # change to your username or org/team slug
+    # Group tiny bumps to reduce PR noise
+    groups:
+      pip-patches:
+        applies-to: version-updates
+        update-types: ["patch"]
+    # Example: keep bigger pandas bumps manual (tweak/remove as you like)
+    ignore:
+      - dependency-name: "pandas"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+
+  # 2) GitHub Actions (Dependabot will bump the pinned SHAs)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:15"
+      timezone: "America/Los_Angeles"
+    labels: ["deps", "ci"]
+    reviewers: ["TCSC5"]
+    groups:
+      gha-patches:
+        applies-to: version-updates
+        update-types: ["patch"]
