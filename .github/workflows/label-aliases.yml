@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Mirror canonical labels to legacy aliases
-        uses: actions/github-script@e69ef5465b70a5f9a6f88d677f2b5a9f3e4b603a # v7 pinned
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7 pinned
         with:
           script: |
             // Map canonical -> legacy labels your agents still read.
