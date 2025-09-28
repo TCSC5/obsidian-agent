@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Mirror canonical labels to legacy aliases
-        uses: actions/github-script@v7
+        uses: actions/github-script@e69ef5465b70a5f9a6f88d677f2b5a9f3e4b603a # v7 pinned
         with:
           script: |
             // Map canonical -> legacy labels your agents still read.
-            // Add/remove pairs here as needed.
+            // One-way mapping to avoid ping-pong. Add/remove pairs as needed.
             const ALIASES = {
               "type:docs": ["documentation"],
               "type:feature": ["enhancement"],
@@ -27,11 +27,12 @@ jobs:
               "status:duplicate": ["duplicate"],
               "status:wontfix": ["wontfix"],
               "status:invalid": ["invalid"],
-              "status:needs-info": ["question"],
-              "deps": ["dependencies"] // optional: only if you keep a 'dependencies' label
+              "status:needs-info": ["question"]
+              // If you keep a legacy 'dependencies' label for agents, uncomment next line:
+              // ,"deps": ["dependencies"]
             };
 
-            const action = context.payload.action;                 // labeled | unlabeled
+            const action = context.payload.action; // labeled | unlabeled
             const label = context.payload.label?.name;
             if (!label || !(label in ALIASES)) return;
 
@@ -39,18 +40,17 @@ jobs:
             const repo  = context.repo.repo;
             const number = (context.payload.issue?.number ?? context.payload.pull_request?.number);
 
-            // fetch repo labels so we don't try to add ones that don't exist
+            // Gather repo labels so we only use ones that exist
             const { data: repoLabels } = await github.rest.issues.listLabelsForRepo({
               owner, repo, per_page: 100
             });
             const repoHas = new Set(repoLabels.map(l => l.name));
 
-            // current labels on the item
+            // Current labels on the item
             const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
               owner, repo, issue_number: number
             });
             const current = new Set(currentLabels.map(l => l.name));
-
             const aliases = ALIASES[label].filter(a => repoHas.has(a));
 
             if (action === "labeled") {
@@ -63,7 +63,7 @@ jobs:
                 if (current.has(a)) {
                   try {
                     await github.rest.issues.removeLabel({ owner, repo, issue_number: number, name: a });
-                  } catch { /* ignore if already removed */ }
+                  } catch {}
                 }
               }
             }
