@@ -1,0 +1,152 @@
+name: Repo health audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 10 * * 1" # Mondays 10:00 UTC
+
+permissions:
+  contents: read
+  security-events: read
+  pull-requests: write   # only to post notices/comments if you add that later
+  issues: write
+
+jobs:
+  labels-and-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5 pinned
+
+      - name: Check required labels (canonical + legacy)
+        uses: actions/github-script@e69ef5465b70a5f9a6f88d677f2b5a9f3e4b603a # v7 pinned
+        with:
+          script: |
+            // Critical (must-have) labels that should exist in every repo.
+            const mustHave = [
+              "deps", "ci", "security", "automerge",
+              "priority:P0","priority:P1","priority:P2",
+              "status:needs-triage","status:needs-info","status:in-progress","status:blocked","status:ready-to-merge"
+            ];
+            // Nice-to-have (warn only) — canonical + legacy while agents migrate.
+            const goodToHave = [
+              "type:bug","type:feature","type:docs","type:test","type:refactor","type:chore","type:perf",
+              "breaking-change","release:major","release:minor","release:patch","backport",
+              "bug","documentation","enhancement","duplicate","wontfix","invalid","question"
+            ];
+
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+            const { data: labels } = await github.rest.issues.listLabelsForRepo({ owner, repo, per_page: 200 });
+            const have = new Set(labels.map(l => l.name));
+
+            const missingCritical = mustHave.filter(n => !have.has(n));
+            const missingNice     = goodToHave.filter(n => !have.has(n));
+
+            if (missingNice.length) core.warning(`Missing (non-critical) labels: ${missingNice.join(", ")}`);
+            if (missingCritical.length) {
+              core.setFailed(`Missing required labels: ${missingCritical.join(", ")}`);
+            } else {
+              core.notice("All required labels are present.");
+            }
+
+      - name: Validate dependabot.yml presence & basics
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! -f .github/dependabot.yml ]]; then
+            echo "::error ::.github/dependabot.yml not found"
+            exit 1
+          fi
+
+          if ! grep -Fq 'package-ecosystem: "pip"' .github/dependabot.yml; then
+            echo "::error ::pip ecosystem missing in .github/dependabot.yml"
+            exit 1
+          fi
+
+          if ! grep -Fq 'package-ecosystem: "github-actions"' .github/dependabot.yml; then
+            echo "::error ::github-actions ecosystem missing in .github/dependabot.yml"
+            exit 1
+          fi
+
+          # Advisories
+          grep -Fq 'groups:' .github/dependabot.yml || echo "::warning ::No groups configured (you may get more PRs)"
+          grep -Fq 'labels: ["deps' .github/dependabot.yml || echo "::notice ::Dependabot PRs are not labeled 'deps'"
+
+          echo "::notice ::dependabot.yml found and parsed"
+
+      - name: Check dependency-submission workflow exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Rql 'python-dependency-submission' .github/workflows 2>/dev/null; then
+            echo "::notice ::Dependency submission workflow present."
+          else
+            echo "::warning ::No dependency-submission workflow found (transitive deps may not be submitted)."
+          fi
+
+  actions-pinning:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - name: Fail on unpinned GitHub Actions
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(.github/workflows/*.yml .github/workflows/*.yaml)
+          [[ ${#files[@]} -gt 0 ]] || exit 0
+
+          bad=0
+          for f in "${files[@]}"; do
+            # Flag version tags like @v3 or floating refs like @main/master; allow local actions (./path) and commit SHAs.
+            if grep -Eq 'uses:\s*[^./][^@]*@v[0-9]+' "$f"; then
+              echo "::error file=${f}::Unpinned action reference (@v*). Pin to a commit SHA."
+              bad=1
+            fi
+            if grep -Eq 'uses:\s*[^./][^@]*@(main|master)\b' "$f"; then
+              echo "::error file=${f}::Floating action reference (@main/@master). Pin to a commit SHA."
+              bad=1
+            fi
+          done
+          exit $bad
+
+  resource-yaml-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.11'
+
+      - name: Lint resource front-matter
+        shell: bash
+        run: |
+          set -euo pipefail
+          pip install --disable-pip-version-check --no-input python-frontmatter
+          python - <<'PY'
+          import sys, pathlib, frontmatter
+          ROOT = pathlib.Path("Resources/learning_inputs")
+          required = {"title","type","domain","tags"}
+          missing_any = False
+
+          if not ROOT.exists():
+              print("::notice ::Resources/learning_inputs/ not present (skipping resource lint).")
+              sys.exit(0)
+
+          for p in ROOT.rglob("*.md"):
+              post = frontmatter.load(p)
+              keys = set(post.keys())
+              missing = required - keys
+              if missing:
+                  print(f"::error file={p}::Missing front-matter keys: {', '.join(sorted(missing))}")
+                  missing_any = True
+              if post.get("type") != "resource":
+                  print(f"::error file={p}::type should be 'resource'")
+                  missing_any = True
+              tags = post.get("tags")
+              if not isinstance(tags, (list, tuple)) or len(tags) == 0:
+                  print(f"::warning file={p}::tags should be a non-empty list")
+
+          sys.exit(1 if missing_any else 0)
+          PY
