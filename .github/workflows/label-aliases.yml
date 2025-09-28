@@ -1,0 +1,69 @@
+name: Label aliases (canonical -> legacy)
+
+on:
+  issues:
+    types: [labeled, unlabeled]
+  pull_request_target:
+    types: [labeled, unlabeled]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror canonical labels to legacy aliases
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Map canonical -> legacy labels your agents still read.
+            // Add/remove pairs here as needed.
+            const ALIASES = {
+              "type:docs": ["documentation"],
+              "type:feature": ["enhancement"],
+              "type:bug": ["bug"],
+              "status:duplicate": ["duplicate"],
+              "status:wontfix": ["wontfix"],
+              "status:invalid": ["invalid"],
+              "status:needs-info": ["question"],
+              "deps": ["dependencies"] // optional: only if you keep a 'dependencies' label
+            };
+
+            const action = context.payload.action;                 // labeled | unlabeled
+            const label = context.payload.label?.name;
+            if (!label || !(label in ALIASES)) return;
+
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+            const number = (context.payload.issue?.number ?? context.payload.pull_request?.number);
+
+            // fetch repo labels so we don't try to add ones that don't exist
+            const { data: repoLabels } = await github.rest.issues.listLabelsForRepo({
+              owner, repo, per_page: 100
+            });
+            const repoHas = new Set(repoLabels.map(l => l.name));
+
+            // current labels on the item
+            const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+              owner, repo, issue_number: number
+            });
+            const current = new Set(currentLabels.map(l => l.name));
+
+            const aliases = ALIASES[label].filter(a => repoHas.has(a));
+
+            if (action === "labeled") {
+              const toAdd = aliases.filter(a => !current.has(a));
+              if (toAdd.length) {
+                await github.rest.issues.addLabels({ owner, repo, issue_number: number, labels: toAdd });
+              }
+            } else if (action === "unlabeled") {
+              for (const a of aliases) {
+                if (current.has(a)) {
+                  try {
+                    await github.rest.issues.removeLabel({ owner, repo, issue_number: number, name: a });
+                  } catch { /* ignore if already removed */ }
+                }
+              }
+            }
