@@ -1,0 +1,1 @@
+advanced-security/python-dependency-submission@v[0-9]+
