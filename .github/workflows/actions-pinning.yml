@@ -1,0 +1,65 @@
+name: actions-pinning
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/**.yml'
+      - '.github/allowed-unpinned-actions.txt'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/**.yml'
+      - '.github/allowed-unpinned-actions.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # actions/checkout v5.0.0 (pinned)
+
+      - name: Fail on unpinned GitHub Actions (file-based allow-list)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          WORKFLOWS_DIR=".github/workflows"
+          ALLOWLIST_FILE=".github/allowed-unpinned-actions.txt"
+
+          # Find any "uses: owner/action@v<digit>" occurrences
+          matches=$(git grep -nE 'uses:\s*[^ ]+@v[0-9]+' "$WORKFLOWS_DIR" || true)
+
+          # If there's an allow-list, build a single regex from its lines (joined by |)
+          if [ -s "$ALLOWLIST_FILE" ]; then
+            allow_regex="$(tr '\n' '|' < "$ALLOWLIST_FILE" | sed 's/|$//')"
+          else
+            allow_regex=""
+          fi
+
+          # Remove allow-listed lines from the findings
+          if [ -n "$allow_regex" ] && [ -n "$matches" ]; then
+            violations=$(printf "%s\n" "$matches" | grep -vE "$allow_regex" || true)
+          else
+            violations="$matches"
+          fi
+
+          if [ -n "$violations" ]; then
+            echo "Found unpinned actions (tagged @v*). Please pin to a commit SHA:"
+            echo
+            echo "$violations"
+            echo
+            echo "To temporarily allow a specific tagged action, add a regex line to $ALLOWLIST_FILE"
+            echo "and commit it in the same PR (e.g., advanced-security/python-dependency-submission@v[0-9]+)."
+            exit 1
+          fi
+
+          echo "All actions are pinned (or explicitly allow-listed)."
+
+      - name: Summary
+        if: always()
+        run: echo "actions-pinning check completed."
