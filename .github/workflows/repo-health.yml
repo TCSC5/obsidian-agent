@@ -101,7 +101,7 @@ jobs:
             exit 1
           fi
           grep -Fq 'groups:' .github/dependabot.yml || echo "::warning ::No groups configured (you may get more PRs)"
-          grep -Fq 'labels: [\"deps' .github/dependabot.yml || echo "::notice ::Dependabot PRs are not labeled 'deps'"
+          grep -Fq 'labels: ["deps' .github/dependabot.yml || echo "::notice ::Dependabot PRs are not labeled 'deps'"
           echo "::notice ::dependabot.yml found and parsed"
 
       - name: Check dependency-submission workflow exists
