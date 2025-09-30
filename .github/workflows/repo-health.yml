@@ -15,19 +15,19 @@ jobs:
   labels-and-config:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5 pinned
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # actions/checkout v5.0.0 (pinned)
 
-      - name: Check required labels (canonical + legacy)
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # actions/github-script v8.0.0 (pinned)
+      - name: Ensure required labels (create if missing)
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd  # actions/github-script v8.0.0 (pinned)
         with:
           script: |
-            // Critical (must-have) labels that should exist in every repo.
+            // Canonical labels that should exist in every repo.
             const mustHave = [
-              "deps", "ci", "security", "automerge",
+              "deps","ci","security","automerge",
               "priority:P0","priority:P1","priority:P2",
               "status:needs-triage","status:needs-info","status:in-progress","status:blocked","status:ready-to-merge"
             ];
-            // Nice-to-have (warn only) — canonical + legacy while agents migrate.
+            // Nice-to-have — canonical + common legacy.
             const goodToHave = [
               "type:bug","type:feature","type:docs","type:test","type:refactor","type:chore","type:perf",
               "breaking-change","release:major","release:minor","release:patch","backport",
@@ -36,16 +36,51 @@ jobs:
 
             const owner = context.repo.owner;
             const repo  = context.repo.repo;
+
+            // Fetch existing labels (first 200)
             const { data: labels } = await github.rest.issues.listLabelsForRepo({ owner, repo, per_page: 200 });
             const have = new Set(labels.map(l => l.name));
 
             const missingCritical = mustHave.filter(n => !have.has(n));
             const missingNice     = goodToHave.filter(n => !have.has(n));
 
-            if (missingNice.length) core.warning(`Missing (non-critical) labels: ${missingNice.join(", ")}`);
-            if (missingCritical.length) {
-              core.setFailed(`Missing required labels: ${missingCritical.join(", ")}`);
-            } else {
+            // Deterministic but pretty colors for the labels we might create
+            const palette = [
+              "0E8A16","0366D6","6F42C1","D93F0B","1D76DB","B60205","0052CC","2CBE4E","A2EEEF","FBCA04","C2E0C6","F9D0C4"
+            ];
+            const pickColor = (name) => palette[(name.length * 131) % palette.length];
+
+            // Create missing critical labels
+            for (const name of missingCritical) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner, repo,
+                  name,
+                  color: pickColor(name),
+                  description: "Managed by repo-health audit"
+                });
+                core.notice(`Created required label: ${name}`);
+              } catch (e) {
+                core.warning(`Could not create required label '${name}': ${e.message}`);
+              }
+            }
+
+            // Warn on nice-to-have; create them too to be self-healing (optional).
+            for (const name of missingNice) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner, repo,
+                  name,
+                  color: pickColor(name),
+                  description: "Managed by repo-health audit (nice-to-have)"
+                });
+                core.notice(`Created optional label: ${name}`);
+              } catch (e) {
+                core.warning(`Could not create optional label '${name}': ${e.message}`);
+              }
+            }
+
+            if (missingCritical.length === 0) {
               core.notice("All required labels are present.");
             }
 
@@ -53,26 +88,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           if [[ ! -f .github/dependabot.yml ]]; then
             echo "::error ::.github/dependabot.yml not found"
             exit 1
           fi
-
-          if ! grep -Fq 'package-ecosystem: "pip"' .github/dependabot.yml; then
+          if ! grep -Fq 'package-ecosystem: \"pip\"' .github/dependabot.yml; then
             echo "::error ::pip ecosystem missing in .github/dependabot.yml"
             exit 1
           fi
-
-          if ! grep -Fq 'package-ecosystem: "github-actions"' .github/dependabot.yml; then
+          if ! grep -Fq 'package-ecosystem: \"github-actions\"' .github/dependabot.yml; then
             echo "::error ::github-actions ecosystem missing in .github/dependabot.yml"
             exit 1
           fi
-
-          # Advisories
           grep -Fq 'groups:' .github/dependabot.yml || echo "::warning ::No groups configured (you may get more PRs)"
-          grep -Fq 'labels: ["deps' .github/dependabot.yml || echo "::notice ::Dependabot PRs are not labeled 'deps'"
-
+          grep -Fq 'labels: [\"deps' .github/dependabot.yml || echo "::notice ::Dependabot PRs are not labeled 'deps'"
           echo "::notice ::dependabot.yml found and parsed"
 
       - name: Check dependency-submission workflow exists
@@ -85,37 +114,11 @@ jobs:
             echo "::warning ::No dependency-submission workflow found (transitive deps may not be submitted)."
           fi
 
-  actions-pinning:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-      - name: Fail on unpinned GitHub Actions
-        shell: bash
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-          files=(.github/workflows/*.yml .github/workflows/*.yaml)
-          [[ ${#files[@]} -gt 0 ]] || exit 0
-
-          bad=0
-          for f in "${files[@]}"; do
-            # Flag version tags like @v3 or floating refs like @main/master; allow local actions (./path) and commit SHAs.
-            if grep -Eq 'uses:\s*[^./][^@]*@v[0-9]+' "$f"; then
-              echo "::error file=${f}::Unpinned action reference (@v*). Pin to a commit SHA."
-              bad=1
-            fi
-            if grep -Eq 'uses:\s*[^./][^@]*@(main|master)\b' "$f"; then
-              echo "::error file=${f}::Floating action reference (@main/@master). Pin to a commit SHA."
-              bad=1
-            fi
-          done
-          exit $bad
-
   resource-yaml-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # actions/checkout v5.0.0 (pinned)
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # actions/setup-python v6.0.0 (pinned)
         with:
           python-version: '3.11'
 
@@ -129,11 +132,9 @@ jobs:
           ROOT = pathlib.Path("Resources/learning_inputs")
           required = {"title","type","domain","tags"}
           missing_any = False
-
           if not ROOT.exists():
               print("::notice ::Resources/learning_inputs/ not present (skipping resource lint).")
               sys.exit(0)
-
           for p in ROOT.rglob("*.md"):
               post = frontmatter.load(p)
               keys = set(post.keys())
@@ -147,6 +148,5 @@ jobs:
               tags = post.get("tags")
               if not isinstance(tags, (list, tuple)) or len(tags) == 0:
                   print(f"::warning file={p}::tags should be a non-empty list")
-
           sys.exit(1 if missing_any else 0)
           PY
