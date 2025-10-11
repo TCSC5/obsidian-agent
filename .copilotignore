@@ -1,0 +1,40 @@
+# Env / secrets
+.env
+**/*.key
+**/*.pem
+
+# Generated artifacts & logs
+data/**
+Summaries/**
+System/run_log.md
+System/reflection_log.md
+System/review_needed_log.md
+
+# Caches / compiled
+**/__pycache__/**
+*.pyc
+*.pyo
+*.log
+*.tmp
+*.cache
+
+# Builds / bundles
+dist/**
+build/**
+
+# Large/binary/media
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.pdf
+**/*.zip
+**/*.pptx
+
+# Editors / local
+.vscode/**
+.idea/**
+
+# Vault mirrors / archives
+**/Sync/**
+**/Archives/**
