@@ -27,4 +27,4 @@ nvm use 20
 # Codex CLI
 npm install -g @openai/codex
 codex --version
-```
+``` 
