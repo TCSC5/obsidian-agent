@@ -20,9 +20,12 @@
 <!-- Exact commands to test this change -->
 ```bat
 REM Example smoke runs
-.\run_all.bat --help
+.
+un_all.bat --help
 .\index_resources.bat --dry-run
-.\run_summarizer.bat --max-notes 1 --dry-run --continue-on-error
+.
+un_summarizer.bat --max-notes 1 --dry-run --continue-on-error
+```
 
 ## Testing / QA
 - [ ] Local smoke run attached (output of `--help` or minimal run)
@@ -30,11 +33,13 @@ REM Example smoke runs
 - [ ] Tests added/updated (if applicable)
 
 **Evidence (paste logs / screenshots):**
-```
+```text
 Example:
 .\index_resources.bat --dry-run
-.\run_summarizer.bat --max-notes 1 --dry-run --continue-on-error
-.\run_all.bat --help
+.
+un_summarizer.bat --max-notes 1 --dry-run --continue-on-error
+.
+un_all.bat --help
 ```
 
 ## Breaking Changes (if any)
@@ -48,6 +53,7 @@ Example:
 
 - [ ] GitHub Actions CI passing (if configured)
 - Notes:
+
 </details>
 
 <details>
@@ -57,6 +63,7 @@ Example:
 - Reviewed by Claude: ☐ Approved ☐ Changes Requested  
 - Reviewed by [Other]: ☐ Approved ☐ Changes Requested  
 - [ ] All LLM feedback addressed
+
 </details>
 
 ## AI Disclosure
