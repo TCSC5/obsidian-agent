@@ -1,21 +1,70 @@
-
-# Byte-compiled / optimized / DLL files
+# ---------------------------
+# Python bytecode / cache
+# ---------------------------
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environment
+# ---------------------------
+# Python build artifacts
+# ---------------------------
+build/
+dist/
+.eggs/
+*.egg-info/
+.Python
+
+# ---------------------------
+# Virtual environments
+# ---------------------------
+.venv/
 venv/
+ENV/
 
-# Environment variables
+# ---------------------------
+# Environment files (never commit secrets)
+# ---------------------------
 .env
+*.env.local
 
-# Log files
-*.log
-logs/
-*.csv
-*.json
+# ---------------------------
+# Logs & generated artifacts (targeted)
+# ---------------------------
+logs/**
+data/**                 # generated artifacts
+!data/training_manifest.json   # keep this tracked if you commit it
+System/run_log.md
+System/reflection_log.md
+System/review_needed_log.md
 
+# If you intentionally track any file under data/, unignore it:
+# !data/example_fixture.csv
+
+# ---------------------------
+# Test / coverage caches
+# ---------------------------
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ---------------------------
+# Editors / IDEs
+# ---------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---------------------------
+# OS cruft
+# ---------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ---------------------------
 # Obsidian vault cache
+# ---------------------------
 .vault.*
 .obsidian/
