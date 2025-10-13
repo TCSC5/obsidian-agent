@@ -1,5 +1,5 @@
 ## Summary
-<!-- What changed and why? One or two sentences. Link any context doc if relevant. -->
+<!-- What changed and why? 1-2 sentences. Link design docs if relevant. -->
 
 ## Type of Change
 - [ ] Bug fix
@@ -7,19 +7,22 @@
 - [ ] Refactor (no behavior change)
 - [ ] Documentation
 - [ ] Chore (tooling/infra)
-- [ ] Breaking change (see section below)
+- [ ] Breaking change
 
-## Related Issues / Links (optional)
-<!-- e.g., Closes #123, or link to design note / discussion -->
+---
+
+<!-- ================================================ -->
+<!-- 💻 FOR CODE CHANGES (feature/bug/refactor) -->
+<!-- Delete this section if chore/docs/tooling only -->
+<!-- ================================================ -->
 
 ## How to Run Locally (Windows)
-<!-- Exact commands. Prefer .bat launchers that pass args through to Python. -->
+<!-- Exact commands to test this change -->
 ```bat
 REM Example smoke runs
 .\run_all.bat --help
 .\index_resources.bat --dry-run
 .\run_summarizer.bat --max-notes 1 --dry-run --continue-on-error
-```
 
 ## Testing / QA
 - [ ] Local smoke run attached (output of `--help` or minimal run)
