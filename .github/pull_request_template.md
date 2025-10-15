@@ -59,9 +59,12 @@ run_all.bat --help
 <details>
 <summary><strong>Multi-LLM Review Checklist (optional)</strong></summary>
 
-- Reviewed by ChatGPT:  [ ] Approved  [ ] Changes Requested  
-- Reviewed by Claude: [ ]  Approved [ ]  Changes Requested  
-- Reviewed by [Other]: [ ]  Approved [ ]  Changes Requested  
+- [ ] Reviewed by ChatGPT: Approved
+- [ ] Reviewed by ChatGPT: Changes Requested
+- [ ] Reviewed by Claude: Approved
+- [ ] Reviewed by Claude: Changes Requested
+- [ ] Reviewed by [Other]: Approved
+- [ ] Reviewed by [Other]: Changes Requested
 - [ ] All LLM feedback addressed
 
 </details>
