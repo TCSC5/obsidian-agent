@@ -21,10 +21,10 @@
 ```bat
 REM Example smoke runs
 .
-un_all.bat --help
+run_all.bat --help
 .\index_resources.bat --dry-run
 .
-un_summarizer.bat --max-notes 1 --dry-run --continue-on-error
+run_summarizer.bat --max-notes 1 --dry-run --continue-on-error
 ```
 
 ## Testing / QA
@@ -37,9 +37,9 @@ un_summarizer.bat --max-notes 1 --dry-run --continue-on-error
 Example:
 .\index_resources.bat --dry-run
 .
-un_summarizer.bat --max-notes 1 --dry-run --continue-on-error
+run_summarizer.bat --max-notes 1 --dry-run --continue-on-error
 .
-un_all.bat --help
+run_all.bat --help
 ```
 
 ## Breaking Changes (if any)
@@ -59,9 +59,12 @@ un_all.bat --help
 <details>
 <summary><strong>Multi-LLM Review Checklist (optional)</strong></summary>
 
-- Reviewed by ChatGPT: ☐ Approved ☐ Changes Requested  
-- Reviewed by Claude: ☐ Approved ☐ Changes Requested  
-- Reviewed by [Other]: ☐ Approved ☐ Changes Requested  
+- [ ] Reviewed by ChatGPT: Approved
+- [ ] Reviewed by ChatGPT: Changes Requested
+- [ ] Reviewed by Claude: Approved
+- [ ] Reviewed by Claude: Changes Requested
+- [ ] Reviewed by [Other]: Approved
+- [ ] Reviewed by [Other]: Changes Requested
 - [ ] All LLM feedback addressed
 
 </details>
