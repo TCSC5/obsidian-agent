@@ -94,8 +94,28 @@ def extract_metrics(md: str) -> List[str]:
         out.append(f"Quiz accuracy ~ {acc.group(1)}%")
     return out
 
+def extract_next_actions(md: str, max_items: int = 6) -> list[str]:
+    """Grab up to max_items checklist items under '## Next Actions'."""
+    next_actions: list[str] = []
+    capture = False
+    for line in md.splitlines():
+        s = line.strip()
+        if s.lower().startswith("## next actions"):
+            capture = True
+            continue
+        if capture:
+            # stop at next heading
+            if s.startswith("## "):
+                break
+            # normalize checked/unchecked boxes to unchecked
+            if s.startswith("- [ ]") or s.startswith("- [x]"):
+                item = re.sub(r"^- \[(?: |x)\]\s*", "- [ ] ", s)
+                next_actions.append(item)
+                if len(next_actions) >= max_items:
+                    break
+    return next_actions
 
-def build_summary_text(md: str) -> str:
+def build_summary_text(md: str, max_items: int = 6) -> str:
     ts = utc_ts()
     lines: List[str] = []
     lines.append(f"# Reflection Summary")
@@ -105,32 +125,22 @@ def build_summary_text(md: str) -> str:
     if metrics:
         lines.append("**Metrics:** " + " | ".join(metrics))
         lines.append("")
-    bullets = extract_bullets(md, max_items=6)
+    bullets = extract_bullets(md, max_items=max_items)
     if bullets:
         lines.append("## Key Points")
-        for b in bullets:
+        for b in bullets[:max_items]:
             lines.append(f"- {b}")
         lines.append("")
-    # Grab next actions
-    next_actions = []
-    capture = False
-    for line in md.splitlines():
-        if line.strip().lower().startswith("## next actions"):
-            capture = True
-            continue
-        if capture:
-            if line.strip().startswith("## "):
-                break
-            if line.strip().startswith("- [ ]"):
-                next_actions.append(line.strip())
+    # Next actions (configurable limit)
+    next_actions = extract_next_actions(md, max_items=max_items)
     if next_actions:
         lines.append("## Next Actions")
-        lines.extend(next_actions[:6])
+        lines.extend(next_actions)
         lines.append("")
-    # Fallback
     if not bullets and not metrics and not next_actions:
         lines.append("_No obvious highlights extracted from reflection log._")
     return "\n".join(lines)
+    
 
 
 # -------------------------
