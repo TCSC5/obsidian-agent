@@ -29,7 +29,7 @@ setx VAULT_PATH "C:\Users\YourName\Sync"
 ```
 
 **Option B: Pass as CLI flag each time**
-```bash
+```cmd
 python resource_indexer.py --vault-path="C:\Your\Vault" --dry-run
 ```
 ## WSL Quickstart
