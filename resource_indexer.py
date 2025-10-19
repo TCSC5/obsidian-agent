@@ -324,14 +324,16 @@ def main():
         print("[DRY-RUN MODE] No files will be modified\n")
     
     print(f"[info] Scanning: {resources_dir}")
+    
+    # MINIMAL FIX: Prevent backups during dry-run
     entries = scan_resources(
         resources_dir, 
         backfill_missing=(not args.no_backfill), 
-        create_backups=(not args.no_backup),
+        create_backups=(False if args.dry_run else (not args.no_backup)),  # ← FIXED HERE
         dry_run=args.dry_run
     )
 
-    # Filter to include only 'resource' type
+    # Filter include only 'resource' type
     filtered = []
     for e in entries:
         t = e.get("type", "resource")
@@ -347,7 +349,7 @@ def main():
         d = e.get("date", "")
         try:
             dt = datetime.strptime(d, "%Y-%m-%d")
-        except (ValueError, TypeError):
+        except Exception:
             dt = datetime(1970, 1, 1)
         return (-dt.toordinal(), str(e.get("title","")).lower())
 
