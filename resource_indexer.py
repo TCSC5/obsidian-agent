@@ -347,7 +347,7 @@ def main():
         d = e.get("date", "")
         try:
             dt = datetime.strptime(d, "%Y-%m-%d")
-        except Exception:
+        except (ValueError, TypeError):
             dt = datetime(1970, 1, 1)
         return (-dt.toordinal(), str(e.get("title","")).lower())
 
