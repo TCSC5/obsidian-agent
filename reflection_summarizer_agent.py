@@ -1,113 +1,193 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 """
-reflection_summarizer_agent.py — GPT-powered executive summary of Reflection logs.
+reflection_summarizer_agent.py
+Summarize data/reflection_log.md into a brief executive summary.
+Writes a repo copy and (optionally) mirrors into the vault.
 
-Inputs:
-- data/reflection_log.md
-- (optional) System/synergy_scores.csv
-
-Outputs:
-- data/reflection_summary.md
-- System/reflection_summary.md (synced)
-
-Env:
-- VAULT_PATH
-- OPENAI_API_KEY (optional; fallback = heuristic summarization)
+Usage (examples):
+  python reflection_summarizer_agent.py --dry-run --no-vault-mirror
+  python reflection_summarizer_agent.py --in data\reflection_log.md --out data\reflection_summary.md
+  python reflection_summarizer_agent.py --vault "%VAULT_PATH%" --mirror-dest System\reflection_summary.md
 """
 
-import os, re
-from pathlib import Path
+from __future__ import annotations
+import argparse
+import os
+import re
 from datetime import datetime
+from pathlib import Path
+from typing import List
 
-# --- Robust .env loader ---
-try:
-    from dotenv import load_dotenv
-    env_file = Path(__file__).resolve().parent / ".env"
-    if env_file.exists():
-        load_dotenv(dotenv_path=env_file, override=False)
-except Exception:
-    pass
 
-# Diagnostic
-_k = os.getenv("OPENAI_API_KEY")
-print(f"[env] OPENAI_API_KEY loaded? {'yes' if _k else 'no'}")
+# -------------------------
+# Common helpers
+# -------------------------
 
-VAULT = Path(os.environ.get("VAULT_PATH") or r"C:\\Users\\top2e\\Sync")
-BASE = Path(__file__).parent.resolve()
-DATA = BASE / "data"
-SYSTEM = VAULT / "System"
-DATA.mkdir(parents=True, exist_ok=True)
-SYSTEM.mkdir(parents=True, exist_ok=True)
+def utc_ts() -> str:
+    return datetime.utcnow().isoformat(timespec="seconds") + "Z"
 
-REFLECTION_LOG = DATA / "reflection_log.md"
-SYNERGY_CSV = SYSTEM / "synergy_scores.csv"
-OUT = DATA / "reflection_summary.md"
-OUT_VAULT = SYSTEM / "reflection_summary.md"
 
-# --- OpenAI client (optional) ---
-_use_gpt = False
-client = None
-try:
-    from openai import OpenAI
-    if os.environ.get("OPENAI_API_KEY"):
-        client = OpenAI()
-        _use_gpt = True
-except Exception:
-    _use_gpt = False
-    client = None
+def log_line(level: str, agent: str, msg: str) -> None:
+    ts = utc_ts()
+    print(f"{ts} | {level.upper()} | {agent} | {msg}")
 
-def read_text(p: Path) -> str:
-    try:
-        return p.read_text(encoding="utf-8", errors="replace")
-    except Exception:
-        return ""
 
-def fallback_summary(txt: str) -> str:
-    # Extract first lines and top 3 reasons
-    lines = txt.splitlines()
-    bullets = [l for l in lines if l.strip().startswith("- ")]
-    out = ["- " + l[2:] for l in bullets[:5]]
-    if not out:
-        out = ["- Reflection log exists but no bullets found."]
-    return "\n".join(out)
+def append_run_log(message: str, run_log_path: Path = Path("System/run_log.md")) -> None:
+    run_log_path.parent.mkdir(parents=True, exist_ok=True)
+    with run_log_path.open("a", encoding="utf-8") as f:
+        f.write(f"{utc_ts()} | INFO | reflection_summarizer | {message}\n")
 
-def gpt_summary(txt: str) -> str:
-    if not _use_gpt or client is None:
-        return fallback_summary(txt)
 
-    prompt = f"""
-Summarize the following reflection log into:
-1. 3–5 bullet executive summary of pipeline health
-2. "What changed since last run" (if possible)
-3. 1–2 high-level recommendations
-
-Reflection log:
-\"\"\"{txt[:3000]}\"\"\"
-"""
-    try:
-        res = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role":"user","content":prompt}],
-            temperature=0.3,
-        )
-        return res.choices[0].message.content
-    except Exception:
-        return fallback_summary(txt)
-
-def main():
-    if not REFLECTION_LOG.exists():
-        OUT.write_text("# Reflection Summary\n\n_No reflection log found._", encoding="utf-8")
+def safe_write(path: Path, content: str, *, dry_run: bool) -> None:
+    size = len(content.encode("utf-8"))
+    action = "DRY-RUN write" if dry_run else "write"
+    log_line("info", "reflection_summarizer", f"{action}: {path} ({size} bytes)")
+    if dry_run:
         return
-    txt = read_text(REFLECTION_LOG)
-    summary = gpt_summary(txt)
-    now = datetime.now().strftime("%Y-%m-%d %H:%M")
-    md = f"# 🪞 Reflection Executive Summary — {now}\n\n{summary}\n"
-    OUT.write_text(md, encoding="utf-8")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
+def mirror_to_vault(vault: Path | None, repo_summary: Path, mirror_rel: Path, *, dry_run: bool) -> None:
+    if vault is None:
+        log_line("info", "reflection_summarizer", "no VAULT_PATH set; skipping mirror")
+        return
+    vault_path = (vault / mirror_rel).resolve()
+    if not repo_summary.exists():
+        log_line("error", "reflection_summarizer", f"repo summary missing: {repo_summary}")
+        return
+    content = repo_summary.read_text(encoding="utf-8")
+    action = f"{'DRY-RUN ' if dry_run else ''}mirror to vault"
+    log_line("info", "reflection_summarizer", f"{action}: {vault_path}")
+    if dry_run:
+        return
+    vault_path.parent.mkdir(parents=True, exist_ok=True)
+    vault_path.write_text(content, encoding="utf-8")
+
+
+# -------------------------
+# Summarization (heuristic; offline)
+# -------------------------
+
+def extract_bullets(md: str, max_items: int = 6) -> List[str]:
+    bullets: List[str] = []
+    for line in md.splitlines():
+        l = line.strip()
+        if l.startswith("- ") and not l.startswith("- ["):
+            # skip checkboxes
+            item = l[2:].strip()
+            if item:
+                bullets.append(item)
+        if len(bullets) >= max_items:
+            break
+    return bullets
+
+
+def extract_metrics(md: str) -> List[str]:
+    """Look for 'Coverage: xx%' and 'Quiz accuracy: yy%' lines."""
+    out: List[str] = []
+    cov = re.search(r"Coverage:\s+\*\*(\d+(?:\.\d+)?)%?\*\*", md)
+    acc = re.search(r"Quiz accuracy:\s+\*\*(\d+(?:\.\d+)?)%?\*\*", md)
+    if cov:
+        out.append(f"Coverage ~ {cov.group(1)}%")
+    if acc:
+        out.append(f"Quiz accuracy ~ {acc.group(1)}%")
+    return out
+
+def extract_next_actions(md: str, max_items: int = 6) -> list[str]:
+    """Grab up to max_items checklist items under '## Next Actions'."""
+    next_actions: list[str] = []
+    capture = False
+    for line in md.splitlines():
+        s = line.strip()
+        if s.lower().startswith("## next actions"):
+            capture = True
+            continue
+        if capture:
+            # stop at next heading
+            if s.startswith("## "):
+                break
+            # normalize checked/unchecked boxes to unchecked
+            if s.startswith("- [ ]") or s.startswith("- [x]"):
+                item = re.sub(r"^- \[(?: |x)\]\s*", "- [ ] ", s)
+                next_actions.append(item)
+                if len(next_actions) >= max_items:
+                    break
+    return next_actions
+
+def build_summary_text(md: str, max_items: int = 6) -> str:
+    ts = utc_ts()
+    lines: List[str] = []
+    lines.append(f"# Reflection Summary")
+    lines.append(f"_Generated: {ts}_")
+    lines.append("")
+    metrics = extract_metrics(md)
+    if metrics:
+        lines.append("**Metrics:** " + " | ".join(metrics))
+        lines.append("")
+    bullets = extract_bullets(md, max_items=max_items)
+    if bullets:
+        lines.append("## Key Points")
+        for b in bullets[:max_items]:
+            lines.append(f"- {b}")
+        lines.append("")
+    # Next actions (configurable limit)
+    next_actions = extract_next_actions(md, max_items=max_items)
+    if next_actions:
+        lines.append("## Next Actions")
+        lines.extend(next_actions)
+        lines.append("")
+    if not bullets and not metrics and not next_actions:
+        lines.append("_No obvious highlights extracted from reflection log._")
+    return "\n".join(lines)
+    
+
+
+# -------------------------
+# CLI
+# -------------------------
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(description="Summarize reflection_log.md into an executive summary.")
+    p.add_argument("--in", dest="inp", type=Path, default=Path("data/reflection_log.md"),
+                   help="Input reflection log (Markdown).")
+    p.add_argument("--out", type=Path, default=Path("data/reflection_summary.md"),
+                   help="Output summary path (repo copy)." )
+    p.add_argument("--vault", type=Path, default=os.getenv("VAULT_PATH"),
+                   help="Vault path for optional mirror (default: env VAULT_PATH)." )
+    p.add_argument("--mirror-dest", type=Path, default=Path("System/reflection_summary.md"),
+                   help="Relative path inside the vault when mirroring.")
+    p.add_argument("--no-vault-mirror", action="store_true",
+                   help="Do not write a copy into the vault.")
+    p.add_argument("--require-gpt", action="store_true",
+                   help="Fail if LLM summarization is not available (offline fallback is default)." )
+    p.add_argument("--dry-run", action="store_true",
+                   help="Preview planned writes; do not modify files." )
+    p.add_argument("--continue-on-error", action="store_true",
+                   help="Log errors and continue execution." )
+    return p
+
+
+def main() -> int:
+    args = build_parser().parse_args()
     try:
-        OUT_VAULT.write_text(md, encoding="utf-8")
-    except Exception:
-        pass
-    print(f"✅ Reflection summary written to {OUT} and {OUT_VAULT}")
+        if args.require_gpt and not os.getenv("OPENAI_API_KEY"):
+            raise RuntimeError("OPENAI_API_KEY not set but --require-gpt was passed.")
+        if not args.inp.exists():
+            raise FileNotFoundError(f"input not found: {args.inp}")
+        md = args.inp.read_text(encoding="utf-8")
+        summary = build_summary_text(md)
+        safe_write(args.out, summary, dry_run=args.dry_run)
+        append_run_log(f"wrote reflection summary → {args.out}")
+        if not args.no_vault_mirror:
+            mirror_to_vault(args.vault, args.out, args.mirror_dest, dry_run=args.dry_run)
+        return 0
+    except Exception as e:
+        log_line("error", "reflection_summarizer", f"{type(e).__name__}: {e}")
+        if args.continue_on_error:
+            return 1
+        raise
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
