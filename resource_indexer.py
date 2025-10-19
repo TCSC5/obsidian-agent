@@ -1,3 +1,35 @@
+#!/usr/bin/env python3
+"""
+Resource Indexer - Learning Pipeline Metadata Manager
+
+Scans Resources/learning_inputs/ for Markdown notes and:
+- Adds YAML frontmatter if missing
+- Validates/backfills required fields (domain, tags, relevance)
+- Generates resource_index.md and resource_index.json
+
+Usage:
+    python resource_indexer.py --vault-path="C:\Your\Vault" --dry-run
+    .\run_resource_indexer.bat
+
+Environment Variables:
+    VAULT_PATH: Default vault location if --vault-path not provided
+
+Outputs:
+    - Resources/resource_index.md (Markdown table)
+    - Resources/resource_index.json (JSON metadata)
+    - *.bak files (backups of modified notes, if --no-backup not set)
+
+Examples:
+    # Preview changes (safe, no modifications)
+    python resource_indexer.py --vault-path="C:\Vault" --dry-run
+    
+    # Apply changes with backups
+    python resource_indexer.py --vault-path="C:\Vault"
+    
+    # Apply without backups (faster)
+    python resource_indexer.py --vault-path="C:\Vault" --no-backup
+"""
+
 from pathlib import Path
 import re
 import json
@@ -160,9 +192,22 @@ def format_md_row(entry: dict, base_path: Path) -> str:
     )
 
 
-def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool) -> list[dict]:
+def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool, dry_run: bool) -> list[dict]:
+    """
+    Scan resources directory for markdown files and process YAML frontmatter.
+    
+    Args:
+        root_dir: Directory to scan
+        backfill_missing: Whether to add missing YAML fields to existing frontmatter
+        create_backups: Whether to create .bak files before modifying
+        dry_run: If True, preview changes without writing
+        
+    Returns:
+        List of processed entry dictionaries
+    """
     md_files = sorted(root_dir.rglob("*.md"))
     entries: list[dict] = []
+    
     for p in md_files:
         try:
             text = p.read_text(encoding="utf-8", errors="ignore")
@@ -175,9 +220,15 @@ def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool)
         if not had_yaml:
             fm = ensure_fields(fm, filename=str(p))
             new_text = yaml_dump(fm) + body.lstrip()
-            if create_backups:
-                shutil.copy2(p, p.with_suffix(p.suffix + ".bak"))
-            p.write_text(new_text, encoding="utf-8")
+            
+            if dry_run:
+                print(f"[DRY-RUN] Would add YAML frontmatter to: {p.name}")
+                print(f"[DRY-RUN] New fields: domain={fm['domain']}, tags={fm['tags']}")
+            else:
+                if create_backups:
+                    shutil.copy2(p, p.with_suffix(p.suffix + ".bak"))
+                p.write_text(new_text, encoding="utf-8")
+                print(f"[WROTE] Added YAML to: {p.name}")
             updated = True
         else:
             updated = False
@@ -186,9 +237,15 @@ def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool)
                 if merged != fm:
                     fm = merged
                     new_text = yaml_dump(fm) + body
-                    if create_backups:
-                        shutil.copy2(p, p.with_suffix(p.suffix + ".bak"))
-                    p.write_text(new_text, encoding="utf-8")
+                    
+                    if dry_run:
+                        print(f"[DRY-RUN] Would backfill YAML in: {p.name}")
+                        print(f"[DRY-RUN] Updated fields: {set(merged.keys()) - set(original_fm.keys())}")
+                    else:
+                        if create_backups:
+                            shutil.copy2(p, p.with_suffix(p.suffix + ".bak"))
+                        p.write_text(new_text, encoding="utf-8")
+                        print(f"[WROTE] Backfilled YAML in: {p.name}")
                     updated = True
 
         fm["_path"] = str(p)
@@ -196,10 +253,20 @@ def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool)
         fm["_had_yaml"] = had_yaml
         fm["_original"] = original_fm
         entries.append(fm)
+        
     return entries
 
 
-def write_indexes(entries: list[dict], index_md_path: Path, index_json_path: Path):
+def write_indexes(entries: list[dict], index_md_path: Path, index_json_path: Path, dry_run: bool):
+    """
+    Write the index files (Markdown and JSON).
+    
+    Args:
+        entries: List of resource entries
+        index_md_path: Path to write Markdown index
+        index_json_path: Path to write JSON index
+        dry_run: If True, preview without writing
+    """
     base_dir = index_md_path.parent
     for e in entries:
         try:
@@ -211,12 +278,19 @@ def write_indexes(entries: list[dict], index_md_path: Path, index_json_path: Pat
     rows = [format_md_row(e, base_dir) for e in entries]
     md = TEMPLATE_MD.format(updated=datetime.now().strftime("%Y-%m-%d %H:%M"), rows="\n".join(rows))
 
-    index_md_path.write_text(md, encoding="utf-8")
-    index_json_path.write_text(json.dumps(entries, indent=2, ensure_ascii=False), encoding="utf-8")
+    if dry_run:
+        print(f"\n[DRY-RUN] Would write Markdown index to: {index_md_path}")
+        print(f"[DRY-RUN] Would write JSON index to: {index_json_path}")
+        print(f"[DRY-RUN] Index would contain {len(entries)} entries")
+    else:
+        index_md_path.write_text(md, encoding="utf-8")
+        index_json_path.write_text(json.dumps(entries, indent=2, ensure_ascii=False), encoding="utf-8")
+        print(f"\n[WROTE] Markdown index: {index_md_path}")
+        print(f"[WROTE] JSON index: {index_json_path}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Index resource summaries and ensure YAML metadata.")
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--vault-path", type=str, default=os.environ.get("VAULT_PATH", ""),
                         help="Path to your Obsidian vault (defaults to VAULT_PATH env var).")
     parser.add_argument("--resources-folder", type=str, default="Resources/learning_inputs",
@@ -229,6 +303,8 @@ def main():
                         help="Do not add missing YAML fields to notes that already have YAML.")
     parser.add_argument("--no-backup", action="store_true",
                         help="Do not write .bak backups before modifying files.")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Preview changes without modifying any files.")
     args = parser.parse_args()
 
     if not args.vault_path:
@@ -244,8 +320,16 @@ def main():
         print(f"[warn] Resources folder does not exist: {resources_dir}")
         resources_dir.mkdir(parents=True, exist_ok=True)
 
+    if args.dry_run:
+        print("[DRY-RUN MODE] No files will be modified\n")
+    
     print(f"[info] Scanning: {resources_dir}")
-    entries = scan_resources(resources_dir, backfill_missing=(not args.no_backfill), create_backups=(not args.no_backup))
+    entries = scan_resources(
+        resources_dir, 
+        backfill_missing=(not args.no_backfill), 
+        create_backups=(not args.no_backup),
+        dry_run=args.dry_run
+    )
 
     # Filter include only 'resource' type
     filtered = []
@@ -270,14 +354,16 @@ def main():
     filtered.sort(key=sort_key)
 
     index_md.parent.mkdir(parents=True, exist_ok=True)
-    write_indexes(filtered, index_md, index_json)
+    write_indexes(filtered, index_md, index_json, dry_run=args.dry_run)
 
     total = len(entries)
     created = sum(1 for e in entries if not e.get("_had_yaml"))
     updated = sum(1 for e in entries if e.get("_updated"))
-    print(f"[ok] Wrote index: {index_md}")
-    print(f"[ok] Wrote JSON : {index_json}")
-    print(f"[summary] scanned={total} newly_yaml={created} updated_yaml={updated}")
+    
+    print(f"\n[summary] scanned={total} newly_yaml={created} updated_yaml={updated}")
+    
+    if args.dry_run:
+        print("\n✓ Dry run complete. Run without --dry-run to apply changes.")
 
 if __name__ == "__main__":
     main()
