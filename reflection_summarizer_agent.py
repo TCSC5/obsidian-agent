@@ -108,7 +108,7 @@ def build_summary_text(md: str) -> str:
     bullets = extract_bullets(md, max_items=6)
     if bullets:
         lines.append("## Key Points")
-        for b in bullets[:6]:
+        for b in bullets:
             lines.append(f"- {b}")
         lines.append("")
     # Grab next actions
