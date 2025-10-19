@@ -1,24 +1,49 @@
-
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 """
-generate_vault_index.py — index markdown notes with a `folder` field
+Vault Scanner - Read-Only Vault Indexer
 
-Scans VAULT_PATH for *.md (skips Archives/.obsidian by default) and writes:
-  data/vault_index.json : list of {"path","folder","title","tags","mtime","size"}
+Scans entire vault for *.md files (except Archives/.obsidian) and generates:
+- data/vault_index.json with basic metadata (path, folder, title, tags, mtime, size)
+
+This is a READ-ONLY tool for general vault navigation/search.
+For learning resource management with YAML validation, use resource_indexer.py instead.
+
+Usage:
+    python generate_vault_index.py
+    python generate_vault_index.py --vault-path="C:\Your\Vault"
+
+Environment Variables:
+    VAULT_PATH: Vault location (defaults to C:\Users\top2e\Sync)
+
+Output:
+    - data/vault_index.json (full vault index)
+
+Examples:
+    # Use default vault path
+    python generate_vault_index.py
+    
+    # Specify custom vault
+    python generate_vault_index.py --vault-path="D:\MyVault"
+    
+    # Custom output location
+    python generate_vault_index.py --output="reports\vault_scan.json"
 """
 
-import os, json, time, re
+import os
+import json
+import argparse
 from pathlib import Path
 
-VAULT = Path(os.getenv("VAULT_PATH") or r"C:\Users\top2e\Sync")
+# Defaults
+DEFAULT_VAULT = Path(os.getenv("VAULT_PATH") or r"C:\Users\top2e\Sync")
 BASE = Path(__file__).parent
-DATA = BASE / "data"
-DATA.mkdir(parents=True, exist_ok=True)
-OUT = DATA / "vault_index.json"
+DEFAULT_OUTPUT = BASE / "data" / "vault_index.json"
 
 SKIP_DIRS = {".obsidian", ".trash", "Archives"}
 
+
 def read_yaml_frontmatter(text: str):
+    """Extract YAML frontmatter from markdown text."""
     if not text.startswith("---"):
         return {}
     end = text.find("\n---", 3)
@@ -32,26 +57,67 @@ def read_yaml_frontmatter(text: str):
             meta[k.strip()] = v.strip().strip("'\"")
     return meta
 
+
 def extract_title(path: Path, text: str):
-    # prefer first markdown heading
+    """Extract title from first markdown heading or use filename."""
     for line in text.splitlines():
         if line.strip().startswith("# "):
             return line.strip().lstrip("# ").strip()
     return path.stem.replace("_", " ").replace("-", " ").strip()
 
+
 def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__, 
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "--vault-path", 
+        type=str,
+        default=str(DEFAULT_VAULT),
+        help="Path to Obsidian vault (defaults to VAULT_PATH env var)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(DEFAULT_OUTPUT),
+        help="Output JSON file path (default: data/vault_index.json)"
+    )
+    args = parser.parse_args()
+    
+    vault = Path(args.vault_path).expanduser().resolve()
+    output = Path(args.output).expanduser().resolve()
+    
+    if not vault.exists():
+        print(f"[error] Vault path does not exist: {vault}")
+        return
+    
+    # Ensure output directory exists
+    output.parent.mkdir(parents=True, exist_ok=True)
+    
+    print(f"[info] Scanning vault: {vault}")
+    
     rows = []
-    for p in VAULT.rglob("*.md"):
-        rel = p.relative_to(VAULT).as_posix()
+    for p in vault.rglob("*.md"):
+        rel = p.relative_to(vault).as_posix()
         parts = rel.split("/")
+        
+        # Skip configured directories
         if parts and parts[0] in SKIP_DIRS:
             continue
-        text = p.read_text(encoding="utf-8", errors="replace")
+        
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except Exception as e:
+            print(f"[warn] Could not read {rel}: {e}")
+            continue
+            
         meta = read_yaml_frontmatter(text)
         title = meta.get("title") or extract_title(p, text)
         tags = meta.get("tags", "")
         folder = "/".join(parts[:-1])
         st = p.stat()
+        
         rows.append({
             "path": rel,
             "folder": folder,
@@ -60,8 +126,14 @@ def main():
             "mtime": int(st.st_mtime),
             "size": st.st_size,
         })
-    OUT.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Indexed {len(rows)} notes to {OUT}")
+    
+    output.write_text(
+        json.dumps(rows, ensure_ascii=False, indent=2), 
+        encoding="utf-8"
+    )
+    
+    print(f"[ok] Indexed {len(rows)} notes to {output}")
+
 
 if __name__ == "__main__":
     main()
