@@ -15,7 +15,6 @@ python -m venv venv
 venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
-bash
 git clone https://github.com/TCSC5/obsidian-agent.git
 cd obsidian-agent 
 ```
