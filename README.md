@@ -53,18 +53,13 @@ nvm use 20
 *Optional if you always pass `--vault-path` CLI flag
 
 **Create `.env` file (optional):**
-```bash
+```env
 # In repo root: D:\MyScripts\obsidian-agent\.env
 VAULT_PATH=C:\Users\top2e\Sync
 OPENAI_API_KEY=sk-your-key-here
 ANTHROPIC_API_KEY=sk-ant-your-key-here
 MAX_RETRIES=3
 LOG_LEVEL=INFO
-
-# Codex CLI
-npm install -g @openai/codex
-codex --version
-``` 
 **⚠️ Never commit `.env` - it's already in `.gitignore`**
 ---
 
