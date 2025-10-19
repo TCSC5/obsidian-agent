@@ -331,7 +331,7 @@ def main():
         dry_run=args.dry_run
     )
 
-    # Filter include only 'resource' type
+    # Filter to include only 'resource' type
     filtered = []
     for e in entries:
         t = e.get("type", "resource")
