@@ -122,7 +122,7 @@ def build_summary_text(md: str) -> str:
             if line.strip().startswith("## "):
                 break
             if line.strip().startswith("- [ ]"):
-                next_actions.append(line.strip().replace("- [ ]", "- [ ]"))
+                next_actions.append(line.strip())
     if next_actions:
         lines.append("## Next Actions")
         lines.extend(next_actions[:6])
