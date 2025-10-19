@@ -1,161 +1,228 @@
-# reflection_agent.py — with UTF‑8 console support and safe printing
+#!/usr/bin/env python3
+"""
+reflection_agent.py
+Produce a detailed reflection log from recent artifacts (metrics, logs, summaries, quizzes).
+Writes a Markdown report to data/reflection_log.md by default.
 
-import os
-import sys
-import csv
+Usage (examples):
+  python reflection_agent.py --dry-run
+  python reflection_agent.py --out data\reflection_log.md
+  python reflection_agent.py --vault "%VAULT_PATH%" --continue-on-error
+
+Conventions:
+- UTC ISO timestamps in console logs and System/run_log.md
+- Never writes without --dry-run being False
+- Vault lives outside the repo (only read paths if needed)
+"""
+
+from __future__ import annotations
+import argparse
 import json
-from collections import defaultdict, Counter
+import os
+from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-# ─── 1. Configure Unicode-safe console output ───
-try:
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace", newline=None)
-    sys.stderr.reconfigure(encoding="utf-8", errors="replace", newline=None)
-except AttributeError:
-    # Fallback for Python <3.7
-    import io
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", newline=None)
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace", newline=None)
 
-# ─── 2. Safe-print utility ───
-def safe_print(*args, **kwargs):
+# -------------------------
+# Common helpers
+# -------------------------
+
+def utc_ts() -> str:
+    return datetime.utcnow().isoformat(timespec="seconds") + "Z"
+
+
+def log_line(level: str, agent: str, msg: str) -> None:
+    ts = utc_ts()
+    print(f"{ts} | {level.upper()} | {agent} | {msg}")
+
+
+def append_run_log(message: str, run_log_path: Path = Path("System/run_log.md")) -> None:
+    run_log_path.parent.mkdir(parents=True, exist_ok=True)
+    with run_log_path.open("a", encoding="utf-8") as f:
+        f.write(f"{utc_ts()} | INFO | reflection_agent | {message}\n")
+
+
+def safe_write(path: Path, content: str, *, dry_run: bool) -> None:
+    size = len(content.encode("utf-8"))
+    action = "DRY-RUN write" if dry_run else "write"
+    log_line("info", "reflection_agent", f"{action}: {path} ({size} bytes)")
+    if dry_run:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
+# -------------------------
+# Data collection
+# -------------------------
+
+@dataclass
+class Snapshot:
+    notes_processed: int = 0
+    summaries: int = 0
+    quizzes: int = 0
+    grades: int = 0
+    coverage_pct: Optional[float] = None
+    quiz_accuracy_pct: Optional[float] = None
+    last_runs: List[str] = None
+
+
+def read_json(path: Path) -> Optional[Dict[str, Any]]:
+    if not path.exists():
+        return None
     try:
-        print(*args, **kwargs)
-    except UnicodeEncodeError:
-        enc = getattr(sys.stdout, "encoding", "utf-8") or "utf-8"
-        sep = kwargs.get("sep", " ")
-        end = kwargs.get("end", "\n")
-        msg = sep.join(str(a) for a in args) + end
-        sys.stdout.buffer.write(msg.encode(enc, errors="replace"))
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception as e:
+        log_line("error", "reflection_agent", f"failed to parse JSON {path}: {e}")
+        return None
 
-# ─── 3. Paths setup ───
-base_dir = os.path.dirname(__file__)
-data_dir = os.path.join(base_dir, "data")
-system_dir = os.path.join(base_dir, "System")
 
-success_log = os.path.join(data_dir, "success_log.csv")
-metrics_file = os.path.join(system_dir, "success_metrics.json")
-reflection_log = os.path.join(data_dir, "reflection_log.md")
-run_log = os.path.join(data_dir, "run_log.md")
-synergy_scores = os.path.join(system_dir, "synergy_scores.csv")
-synergy_timeseries = os.path.join(system_dir, "synergy_timeseries.csv")
-
-# ─── 4. Load and compute stats ───
-insight_scores, pitch_scores, legacy_synergy = [], [], []
-by_reason, by_type = defaultdict(int), defaultdict(int)
-
-if os.path.exists(success_log):
-    with open(success_log, encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            kind = row.get("type","").strip()
-            score = int(row.get("score") or 0)
-            reason = row.get("reason","").strip()
-            synergy = float(row.get("synergy") or 0.0)
-            if kind == "insight": insight_scores.append(score)
-            elif kind == "pitch": pitch_scores.append(score)
-            if reason: by_reason[reason] += 1
-            if kind: by_type[kind] += 1
-            legacy_synergy.append(synergy)
-
-# Load metrics (if any)
-metrics = {}
-if os.path.exists(metrics_file):
-    with open(metrics_file, encoding="utf-8") as f:
-        metrics = json.load(f)
-
-# Snapshot info from run_log.md
-note_count = link_count = last_snapshot = "N/A"
-if os.path.exists(run_log):
-    with open(run_log, encoding="utf-8") as f:
-        for line in f:
-            if "Snapshot Log —" in line:
-                last_snapshot = line.split("—")[-1].strip(" )\n")
-            elif "**Notes Indexed:**" in line:
-                note_count = line.split(":",1)[1].strip()
-            elif "**Links Created:**" in line:
-                link_count = line.split(":",1)[1].strip()
-
-# ─── 5. Synergy insights ───
-def p90(vals):
-    sv = sorted(vals)
-    return sv[int(0.9*(len(sv)-1))] if vals else 0.0
-
-synergy_section = []
-top10_lines, hotlist_lines, trend_lines = [], [], []
-
-if os.path.exists(synergy_scores):
+def tail_lines(path: Path, n: int = 50) -> List[str]:
+    if not path.exists():
+        return []
     try:
-        with open(synergy_scores, encoding="utf-8") as f:
-            rows = list(csv.DictReader(f))
-        comps = [float(r.get("composite_score") or 0) for r in rows]
-        avgc = sum(comps)/len(comps) if comps else 0
-        p90c = p90(comps)
-        synergy_section.extend([
-            "## 🔗📈 Synergy Snapshot (Composite)",
-            f"- Avg: {avgc:.2f} | P90: {p90c:.2f}", ""
-        ])
-        top10 = sorted(rows, key=lambda r: float(r.get("composite_score") or 0), reverse=True)[:10]
-        top10_lines.append("### Top 10 by Composite")
-        for r in top10:
-            name = os.path.splitext(os.path.basename(r.get("note_path","")))[0]
-            top10_lines.append(f"- {name}: {float(r.get('composite_score') or 0):.2f}")
-        top10_lines.append("")
-        hot = [r for r in rows if abs(float(r.get("disagreement_abs") or 0)) > 0.35]
-        hot = sorted(hot, key=lambda r: abs(float(r.get("disagreement_abs") or 0)), reverse=True)[:10]
-        if hot:
-            hotlist_lines.append("### ⚠️ Disagreement Hotlist")
-            for r in hot:
-                name = os.path.splitext(os.path.basename(r.get("note_path","")))[0]
-                hotlist_lines.append(f"- {name}: Δ={abs(float(r.get('disagreement_abs') or 0)):.2f}")
-            hotlist_lines.append("")
+        lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        return lines[-n:]
+    except Exception as e:
+        log_line("error", "reflection_agent", f"failed to read {path}: {e}")
+        return []
+
+
+def count_files(root: Path, patterns: List[str]) -> int:
+    if not root.exists():
+        return 0
+    total = 0
+    for pat in patterns:
+        total += sum(1 for _ in root.rglob(pat))
+    return total
+
+
+def gather_snapshot() -> Snapshot:
+    snap = Snapshot(last_runs=[])
+
+    # Summaries / quizzes / grades counts under data/
+    data_dir = Path("data")
+    snap.summaries = count_files(data_dir / "Summaries", ["summary.md", "cheatsheet.md"])
+    snap.quizzes   = count_files(data_dir / "Quizzes", ["*.json"])
+    snap.grades    = count_files(data_dir / "Grades", ["*.json"])
+
+    # Try to infer "notes_processed" ~= unique summary folders
+    summaries_root = data_dir / "Summaries"
+    if summaries_root.exists():
+        snap.notes_processed = sum(1 for p in summaries_root.iterdir() if p.is_dir())
+    else:
+        snap.notes_processed = 0
+
+    # Metrics from System/success_metrics.json (if present)
+    metrics = read_json(Path("System/success_metrics.json")) or {}
+    cov = metrics.get("coverage_pct", metrics.get("coverage"))
+    acc = metrics.get("quiz_accuracy_pct", metrics.get("quiz_accuracy"))
+    try:
+        snap.coverage_pct = float(cov) if cov is not None else None
     except Exception:
-        synergy_section.extend(["## 🔗📈 Synergy Snapshot (Composite)", "- ⚠️ Could not parse synergy data.", ""])
-
-if os.path.exists(synergy_timeseries):
+        snap.coverage_pct = None
     try:
-        latest = {}
-        with open(synergy_timeseries, encoding="utf-8") as f:
-            for row in csv.DictReader(f):
-                key, ts = row.get("note_path",""), row.get("timestamp","")
-                if key and (key not in latest or ts > latest[key]["timestamp"]):
-                    latest[key] = row
-        ema = [float(r.get("ema_composite") or 0) for r in latest.values()]
-        vault_ema = sum(ema)/len(ema) if ema else 0
-        trend_lines.append("## 📈 Synergy Trend (EMA Composite)")
-        trend_lines.append(f"- Vault-wide EMA (mean): {vault_ema:.2f}")
-        trend_lines.append("")
+        snap.quiz_accuracy_pct = float(acc) if acc is not None else None
     except Exception:
-        trend_lines.extend(["## 📈 Synergy Trend (EMA Composite)", "- ⚠️ Could not parse trend data.", ""])
+        snap.quiz_accuracy_pct = None
 
-# ─── 6. Build reflection log output ───
-now = datetime.now().strftime("%Y-%m-%d %H:%M")
-lines = [
-    "# 🔁 GPT Reflection Log", "", f"_Updated: {now}_", "",
-    "## 📊 Summary Stats",
-    f"- Notes Indexed: {note_count}",
-    f"- Links Created: {link_count}",
-    f"- Pitches scored: {len(pitch_scores)}",
-    f"- Insights scored: {len(insight_scores)}",
-    f"- Avg Pitch Score: {sum(pitch_scores)/len(pitch_scores):.2f}" if pitch_scores else "- Avg Pitch Score: N/A",
-    f"- Avg Insight Score: {sum(insight_scores)/len(insight_scores):.2f}" if insight_scores else "- Avg Insight Score: N/A", ""
-] + synergy_section + top10_lines + hotlist_lines + trend_lines + [
-    "## 🔍 Top Reasons for Low Scores"
-] + [f"- {r}: {c}" for r, c in Counter(by_reason).most_common(5)] + [
-    "",
-    "## 🤔 GPT Suggestions",
-    "- Investigate root causes of repeated failures.",
-    "- Monitor whether high-synergy items convert better and adjust weight accordingly.",
-    "- Compare `run_log.md` snapshots to detect pipeline shifts.",
-    "- If note/link counts drop, revisit summarization or linking steps.", "",
-    "## 🧠 Proposed Metric Definitions",
-    "```json",
-    json.dumps(metrics, indent=2),
-    "```",
-    "_(Edit `System/success_metrics.json` as needed.)_"
-]
+    # Last runs from System/run_log.md
+    snap.last_runs = tail_lines(Path("System/run_log.md"), n=25)
+    return snap
 
-with open(reflection_log, "w", encoding="utf-8") as f:
-    f.write("\n".join(lines))
 
-safe_print("✅ Reflection log updated with synergy insights:", reflection_log)
+# -------------------------
+# Report generation
+# -------------------------
+
+def md_percent(x: Optional[float]) -> str:
+    if x is None:
+        return "_n/a_"
+    try:
+        return f"{x:.1f}%"
+    except Exception:
+        return "_n/a_"
+
+
+def suggestions_from_snapshot(s: Snapshot) -> List[str]:
+    tips: List[str] = []
+    if s.notes_processed < 5 and s.summaries == 0:
+        tips.append("Process a small batch (3–5 notes) to warm up the pipeline.")
+    if s.coverage_pct is not None and s.coverage_pct < 60:
+        tips.append("Coverage is low; consider indexing more folders or adding tags.")
+    if s.quiz_accuracy_pct is not None and s.quiz_accuracy_pct < 70:
+        tips.append("Quiz accuracy is modest; schedule reinforcement on low-score notes.")
+    if s.grades == 0 and s.quizzes > 0:
+        tips.append("Quizzes exist without grades; run the scoring step.")
+    if not tips:
+        tips.append("System is healthy—continue your current cadence.")
+    return tips
+
+
+def build_report(s: Snapshot) -> str:
+    ts = utc_ts()
+    lines: List[str] = []
+    lines.append(f"# Reflection Report")
+    lines.append(f"_Generated: {ts}_")
+    lines.append("")
+    lines.append("## Snapshot")
+    lines.append(f"- Notes processed: **{s.notes_processed}**")
+    lines.append(f"- Summaries: **{s.summaries}**  |  Quizzes: **{s.quizzes}**  |  Grades: **{s.grades}**")
+    lines.append(f"- Coverage: **{md_percent(s.coverage_pct)}**  |  Quiz accuracy: **{md_percent(s.quiz_accuracy_pct)}**")
+    lines.append("")
+    lines.append("## Recent Runs (tail)")
+    if s.last_runs:
+        lines.extend(f"- {ln}" for ln in s.last_runs)
+    else:
+        lines.append("_No recent runs logged._")
+    lines.append("")
+    lines.append("## Insights & Suggestions")
+    for tip in suggestions_from_snapshot(s):
+        lines.append(f"- {tip}")
+    lines.append("")
+    lines.append("## Next Actions (checklist)")
+    lines.append("- [ ] Summarize 3 new notes")
+    lines.append("- [ ] Regenerate dashboard")
+    lines.append("- [ ] Review low-accuracy topics")
+    lines.append("")
+    return "\n".join(lines)
+
+
+# -------------------------
+# CLI
+# -------------------------
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(description="Produce detailed reflection log from recent metrics/logs.")
+    p.add_argument("--vault", type=Path, default=os.getenv("VAULT_PATH"),
+                   help="Path to your Obsidian vault (optional, not written by this script)."
+                   )
+    p.add_argument("--out", type=Path, default=Path("data/reflection_log.md"),
+                   help="Output reflection log path (Markdown).")
+    p.add_argument("--dry-run", action="store_true",
+                   help="Preview planned writes; do not modify files.")
+    p.add_argument("--continue-on-error", action="store_true",
+                   help="Log errors and continue execution.")
+    return p
+
+
+def main() -> int:
+    args = build_parser().parse_args()
+    log_line("info", "reflection_agent", "collecting snapshot")
+    try:
+        snap = gather_snapshot()
+        report = build_report(snap)
+        safe_write(args.out, report, dry_run=args.dry_run)
+        append_run_log(f"wrote reflection log → {args.out}")
+        return 0
+    except Exception as e:
+        log_line("error", "reflection_agent", f"{type(e).__name__}: {e}")
+        if args.continue_on_error:
+            return 1
+        raise
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
