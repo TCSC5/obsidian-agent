@@ -299,6 +299,16 @@ See `.github/pull_request_template.md` for PR guidelines and checklist.
 - Test locally before pushing
 
 ---
+## Continuous Integration
+
+Every PR runs automated smoke tests on Windows:
+- ✅ Vault indexing with YAML parsing
+- ✅ Resource indexing with metadata extraction
+- ✅ Summarizer dry-run
+- ✅ Orchestrator execution (all profiles)
+- ✅ No deprecated launcher references
+
+See `.github/workflows/smoke-windows.yml` for details.
 
 ## License
 
