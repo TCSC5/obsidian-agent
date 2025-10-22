@@ -1,0 +1,127 @@
+# .github/workflows/smoke-windows.yml
+name: Smoke (Windows dry-run)
+
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-win:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v4.2.2 pinned
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@f390376b527c1ea4c6265b2fa2810e02519ed449 # v5.2.0 pinned
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8 # v4.1.2 pinned
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if (Test-Path .\requirements.txt) { pip install -r requirements.txt }
+
+      - name: Prepare realistic test vault
+        env:
+          VAULT_PATH: C:\Users\runneradmin\fake-vault
+        run: |
+          echo "VAULT_PATH=C:\Users\runneradmin\fake-vault" >> $env:GITHUB_ENV
+          New-Item -Force -ItemType Directory $env:VAULT_PATH\Resources\learning_inputs | Out-Null
+          New-Item -Force -ItemType Directory $env:VAULT_PATH\Resources\summaries | Out-Null
+          New-Item -Force -ItemType Directory $env:VAULT_PATH\System | Out-Null
+          @"
+          ---
+          title: Test Note With YAML
+          tags: [test, automation]
+          domain: [ai]
+          relevance: high
+          date: 2025-01-01
+          source: https://example.com
+          ---
+          Body with YAML.
+          "@ | Out-File -FilePath $env:VAULT_PATH\Resources\learning_inputs\test1.md -Encoding utf8
+          "Test note without YAML" | Out-File -FilePath $env:VAULT_PATH\Resources\learning_inputs\test2.md -Encoding utf8
+
+      - name: Smoke: vault index (global)
+        run: |
+          if (Test-Path .\generate_vault_index.py) {
+            python .\generate_vault_index.py --dry-run
+          } else {
+            Write-Host "generate_vault_index.py not present (skipping)"; echo "SKIP_vault_index=true" >> $env:GITHUB_ENV
+          }
+
+      - name: Smoke: resource indexer (Resources metadata)
+        env:
+          VAULT_PATH: ${{ env.VAULT_PATH }}
+        run: |
+          if (Test-Path .\resource_indexer.py) {
+            python .\resource_indexer.py --vault "$env:VAULT_PATH" --dry-run --verbose
+          } else {
+            Write-Error "resource_indexer.py missing"; exit 1
+          }
+
+      - name: Smoke: summarizer
+        run: |
+          if (Test-Path .\run_summarizer.bat) {
+            .\run_summarizer.bat --max-notes 1 --dry-run --continue-on-error
+          } elseif (Test-Path .\agents\summarizer_agent_v5.py) {
+            python .\agents\summarizer_agent_v5.py --dry-run --continue-on-error
+          } else {
+            Write-Host "No summarizer entry found (skipping)"
+          }
+
+      - name: Smoke: dashboard
+        run: |
+          if (Test-Path .\generate_dashboard_v3.py) {
+            python .\generate_dashboard_v3.py --dry-run
+          } elseif (Test-Path .\generate_dashboard_v2.py) {
+            python .\generate_dashboard_v2.py --dry-run
+          } else {
+            Write-Host "No dashboard generator found (skipping)"
+          }
+
+      - name: Smoke: reflection agents
+        run: |
+          if (Test-Path .\reflection_agent.py) { python .\reflection_agent.py --dry-run }
+          if (Test-Path .\reflection_summarizer_agent.py) { python .\reflection_summarizer_agent.py --dry-run --no-vault-mirror --max-items 3 }
+
+      - name: Smoke: orchestrator (canonical)
+        run: |
+          if (Test-Path .\run_orchestrator.bat) {
+            .\run_orchestrator.bat --profile decision --dry-run
+          } elseif (Test-Path .\orchestrator_agent_profiled.py) {
+            python .\orchestrator_agent_profiled.py --profile decision --dry-run
+          } else {
+            Write-Host "No orchestrator found (skipping)"
+          }
+
+      - name: Verify no deprecated launchers used
+        run: |
+          if (Select-String -Path .\*.bat -Pattern "run_orchestrator_v5" -Quiet) {
+            Write-Error "Deprecated launcher referenced in repo .bat files"
+            exit 1
+          }
+
+      - name: Evidence: show vault run_log if present
+        run: |
+          if (Test-Path "$env:VAULT_PATH\System\run_log.md") {
+            Get-Content "$env:VAULT_PATH\System\run_log.md" -TotalCount 50
+          }
