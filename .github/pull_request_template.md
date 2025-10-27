@@ -50,11 +50,18 @@ REM Example smoke runs
 #### Policy Compliance
 - [ ] **No deprecated launchers**: Verified no references to `run_orchestrator_v5.bat` in modified files
 ```bat
-  REM Quick check:
-  findstr /S /I "run_orchestrator_v5" *.bat *.py
+REM CMD (recursive)
+for /f "delims=" %%F in ('dir /s /b *.bat *.py .github\*.md') do findstr /I /C:"run_orchestrator_v5" "%%F" && echo FOUND in %%F && exit /b 1
+echo ✓ No deprecated references
 ```
-- [ ] **No hardcoded paths**: All vault paths use `VAULT_PATH` environment variable or config
-- [ ] **Dry-run compatible**: New code respects `--dry-run` flag (no writes when enabled)
+```powershell
+# Powershell (recursive)
+$hits = Get-ChildItem -Recurse -Include *.bat,*.py,*.md |
+         Select-String -SimpleMatch "run_orchestrator_v5"
+if ($hits) { $hits | Format-Table -AutoSize; throw "Deprecated reference(s) found." } else { "✓ No deprecated references" }
+```
+- [ ] **No hardcoded paths**: All vault paths use `VAULT_PATH` or config
+- [ ] **Dry-run compatible**: New code respects `--dry-run` (no writes when enabled)
 
 ### Evidence
 <!-- Paste relevant output from smoke tests, error messages, or screenshots -->
@@ -63,7 +70,7 @@ REM Example smoke runs
 ```text
 Example:
 .\index_resources.bat --dry-run
-[DRY RUN] Processing 42 notes in C:\vault\Resources\learning_inputs
+[DRY RUN] Processing N notes in C:\vault\Resources\learning_inputs
 [DRY RUN] Would create metadata index at C:\vault\System\resource_metadata.json
 ✓ Validation complete
 
@@ -83,7 +90,7 @@ Example:
 </details>
 
 ### GitHub Actions CI
-- [ ] All CI checks passing (see "Checks" tab above)
+- [ ] Smoke (Windows dry-run) / smoke-win is passing
 - [ ] Reviewed CI logs for warnings or deprecation notices
 - [ ] No new workflow failures introduced
 
@@ -118,9 +125,9 @@ Example:
 
 ## Documentation
 - [ ] README.md updated (if user-facing changes)
-- [ ] Code comments added/updated
-- [ ] Configuration examples updated (if config changes)
-- [ ] Docs/usage examples updated if behavior changed
+- [ ] Code comments updated
+- [ ] Configuration examples updated (if relevant)
+- [ ] Usage docs updated if behavior changed
 
 ---
 
@@ -131,7 +138,7 @@ Use multiple AI assistants to catch different types of issues:
 - [ ] Reviewed by ChatGPT: Approved / Changes Requested
 - [ ] Reviewed by Claude: Approved / Changes Requested
 - [ ] Reviewed by [Other]: Approved / Changes Requested
-- [ ] All LLM feedback addressed
+
 
 **Summary of AI feedback:**
 <!-- Brief notes on what each AI caught or suggested -->
@@ -168,13 +175,13 @@ python resource_indexer.py --vault "$env:VAULT_PATH" --dry-run --verbose
 .\run_orchestrator.bat --profile decision --dry-run
 
 # Policy check
-Select-String -Path .\*.bat,.\*.py -Pattern "run_orchestrator_v5"
+Get-ChildItem -Recurse -Include *.bat,*.py,*.md | Select-String "run_orchestrator_v5"
 ```
 
 ---
 
 <!-- 
 Template version: 2.0 (aligned with smoke-windows.yml)
-Last updated: 2025-10-21
+Last updated: 2025-10-26
 Aligns with: .github/workflows/smoke-windows.yml
 -->
