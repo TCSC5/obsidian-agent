@@ -73,7 +73,7 @@ jobs:
             "✓ No deprecated references"
           }
 
-      - name: Smoke: vault index (global)
+      - name: "Smoke: vault index (global)"
         shell: pwsh
         run: |
           if (Test-Path .\generate_vault_index.py) {
@@ -82,7 +82,7 @@ jobs:
             Write-Host "generate_vault_index.py not present (skipping)"; echo "SKIP_vault_index=true" | Out-File -FilePath $env:GITHUB_ENV -Append
           }
 
-      - name: Smoke: resource indexer (Resources metadata)
+      - name: "Smoke: resource indexer (Resources metadata)"
         shell: pwsh
         env:
           VAULT_PATH: ${{ env.VAULT_PATH }}
@@ -93,7 +93,7 @@ jobs:
             Write-Host "resource_indexer.py not present (skipping)"; exit 0
           }
 
-      - name: Smoke: summarizer
+      - name: "Smoke: summarizer"
         shell: cmd
         run: |
           if exist ".\run_summarizer.bat" (
@@ -104,7 +104,7 @@ jobs:
             echo No summarizer entry found (skipping)
           )
 
-      - name: Smoke: dashboard
+      - name: "Smoke: dashboard"
         shell: pwsh
         run: |
           if (Test-Path .\generate_dashboard_v3.py) {
@@ -115,13 +115,13 @@ jobs:
             Write-Host "No dashboard generator found (skipping)"
           }
 
-      - name: Smoke: reflection agents
+      - name: "Smoke: reflection agents"
         shell: pwsh
         run: |
           if (Test-Path .\reflection_agent.py) { python .\reflection_agent.py --dry-run }
           if (Test-Path .\reflection_summarizer_agent.py) { python .\reflection_summarizer_agent.py --dry-run --no-vault-mirror --max-items 3 }
 
-      - name: Smoke: orchestrator (canonical)
+      - name: "Smoke: orchestrator (canonical)"
         shell: cmd
         run: |
           if exist ".\run_orchestrator.bat" (
@@ -132,7 +132,7 @@ jobs:
             echo No orchestrator found (skipping)
           )
 
-      - name: Evidence: show vault run_log if present
+      - name: "Evidence: show vault run_log if present"
         shell: pwsh
         run: |
           if (Test-Path "$env:VAULT_PATH\System\run_log.md") {
