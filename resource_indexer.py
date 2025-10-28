@@ -8,7 +8,8 @@ Scans Resources/learning_inputs/ for Markdown notes and:
 - Generates resource_index.md and resource_index.json
 
 Usage:
-    python resource_indexer.py --vault-path="C:\Your\Vault" --dry-run
+    python resource_indexer.py --vault-path="C:/Your/Vault" --dry-run
+    python resource_indexer.py --vault-path="C:/Your/Vault" --verbose
     .\run_resource_indexer.bat
 
 Environment Variables:
@@ -21,13 +22,16 @@ Outputs:
 
 Examples:
     # Preview changes (safe, no modifications)
-    python resource_indexer.py --vault-path="C:\Vault" --dry-run
+    python resource_indexer.py --vault-path="C:/Vault" --dry-run
     
     # Apply changes with backups
-    python resource_indexer.py --vault-path="C:\Vault"
+    python resource_indexer.py --vault-path="C:/Vault"
     
     # Apply without backups (faster)
-    python resource_indexer.py --vault-path="C:\Vault" --no-backup
+    python resource_indexer.py --vault-path="C:/Vault" --no-backup
+    
+    # Verbose output for debugging
+    python resource_indexer.py --vault-path="C:/Vault" --dry-run --verbose
 """
 
 from pathlib import Path
@@ -101,7 +105,7 @@ def coerce_list(v):
     return [str(v)] if v != "" else []
 
 
-def ensure_fields(fm: dict, filename: str | None = None) -> dict:
+def ensure_fields(fm: dict, filename: str | None = None, verbose: bool = False) -> dict:
     """
     Normalize and fill missing fields with sensible defaults or placeholders.
     Try to infer title from filename when absent.
@@ -113,6 +117,9 @@ def ensure_fields(fm: dict, filename: str | None = None) -> dict:
             normalized["title"] = Path(filename).stem.replace("_", " ").replace("-", " ").strip() or "(untitled)"
         else:
             normalized["title"] = "(untitled)"
+        if verbose:
+            print(f"  [verbose] Inferred title from filename: {normalized['title']}")
+    
     normalized["type"] = normalized.get("type") or "resource"
     normalized["domain"] = coerce_list(normalized.get("domain"))
     normalized["tags"] = coerce_list(normalized.get("tags"))
@@ -143,9 +150,13 @@ def ensure_fields(fm: dict, filename: str | None = None) -> dict:
                 inferred.add(infer_map[key])
         if inferred:
             normalized["domain"] = sorted(list(inferred))
+            if verbose:
+                print(f"  [verbose] Inferred domain from tags: {normalized['domain']}")
 
     if not normalized["domain"]:
         normalized["domain"] = ["needs_domain"]
+        if verbose:
+            print(f"  [verbose] No domain found, using default: needs_domain")
 
     return normalized
 
@@ -192,7 +203,7 @@ def format_md_row(entry: dict, base_path: Path) -> str:
     )
 
 
-def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool, dry_run: bool) -> list[dict]:
+def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool, dry_run: bool, verbose: bool = False) -> list[dict]:
     """
     Scan resources directory for markdown files and process YAML frontmatter.
     
@@ -201,6 +212,7 @@ def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool,
         backfill_missing: Whether to add missing YAML fields to existing frontmatter
         create_backups: Whether to create .bak files before modifying
         dry_run: If True, preview changes without writing
+        verbose: If True, enable detailed logging
         
     Returns:
         List of processed entry dictionaries
@@ -208,42 +220,62 @@ def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool,
     md_files = sorted(root_dir.rglob("*.md"))
     entries: list[dict] = []
     
-    for p in md_files:
+    if verbose:
+        print(f"[verbose] Found {len(md_files)} markdown files to process")
+    
+    for i, p in enumerate(md_files, 1):
+        if verbose:
+            print(f"[verbose] Processing {i}/{len(md_files)}: {p.name}")
+        
         try:
             text = p.read_text(encoding="utf-8", errors="ignore")
-        except Exception:
+        except Exception as e:
+            if verbose:
+                print(f"  [verbose] Failed to read file: {e}")
             continue
 
         fm, body, had_yaml = parse_frontmatter(text)
         original_fm = dict(fm)
 
+        if verbose:
+            print(f"  [verbose] Has YAML: {had_yaml}")
+            if had_yaml:
+                print(f"  [verbose] Existing fields: {list(fm.keys())}")
+
         if not had_yaml:
-            fm = ensure_fields(fm, filename=str(p))
+            fm = ensure_fields(fm, filename=str(p), verbose=verbose)
             new_text = yaml_dump(fm) + body.lstrip()
             
             if dry_run:
                 print(f"[DRY-RUN] Would add YAML frontmatter to: {p.name}")
-                print(f"[DRY-RUN] New fields: domain={fm['domain']}, tags={fm['tags']}")
+                if verbose:
+                    print(f"  [verbose] New fields: domain={fm['domain']}, tags={fm['tags']}")
             else:
                 if create_backups:
                     shutil.copy2(p, p.with_suffix(p.suffix + ".bak"))
+                    if verbose:
+                        print(f"  [verbose] Created backup: {p.name}.bak")
                 p.write_text(new_text, encoding="utf-8")
                 print(f"[WROTE] Added YAML to: {p.name}")
             updated = True
         else:
             updated = False
             if backfill_missing:
-                merged = ensure_fields(fm, filename=str(p))
+                merged = ensure_fields(fm, filename=str(p), verbose=verbose)
                 if merged != fm:
                     fm = merged
                     new_text = yaml_dump(fm) + body
                     
                     if dry_run:
                         print(f"[DRY-RUN] Would backfill YAML in: {p.name}")
-                        print(f"[DRY-RUN] Updated fields: {set(merged.keys()) - set(original_fm.keys())}")
+                        if verbose:
+                            added_fields = set(merged.keys()) - set(original_fm.keys())
+                            print(f"  [verbose] Would add fields: {added_fields}")
                     else:
                         if create_backups:
                             shutil.copy2(p, p.with_suffix(p.suffix + ".bak"))
+                            if verbose:
+                                print(f"  [verbose] Created backup: {p.name}.bak")
                         p.write_text(new_text, encoding="utf-8")
                         print(f"[WROTE] Backfilled YAML in: {p.name}")
                     updated = True
@@ -257,7 +289,7 @@ def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool,
     return entries
 
 
-def write_indexes(entries: list[dict], index_md_path: Path, index_json_path: Path, dry_run: bool):
+def write_indexes(entries: list[dict], index_md_path: Path, index_json_path: Path, dry_run: bool, verbose: bool = False):
     """
     Write the index files (Markdown and JSON).
     
@@ -266,7 +298,11 @@ def write_indexes(entries: list[dict], index_md_path: Path, index_json_path: Pat
         index_md_path: Path to write Markdown index
         index_json_path: Path to write JSON index
         dry_run: If True, preview without writing
+        verbose: If True, enable detailed logging
     """
+    if verbose:
+        print(f"[verbose] Formatting {len(entries)} entries for index files")
+    
     base_dir = index_md_path.parent
     for e in entries:
         try:
@@ -282,16 +318,22 @@ def write_indexes(entries: list[dict], index_md_path: Path, index_json_path: Pat
         print(f"\n[DRY-RUN] Would write Markdown index to: {index_md_path}")
         print(f"[DRY-RUN] Would write JSON index to: {index_json_path}")
         print(f"[DRY-RUN] Index would contain {len(entries)} entries")
+        if verbose:
+            print(f"[verbose] Markdown index size: {len(md)} characters")
+            print(f"[verbose] JSON index size: {len(json.dumps(entries))} characters")
     else:
         index_md_path.write_text(md, encoding="utf-8")
         index_json_path.write_text(json.dumps(entries, indent=2, ensure_ascii=False), encoding="utf-8")
         print(f"\n[WROTE] Markdown index: {index_md_path}")
         print(f"[WROTE] JSON index: {index_json_path}")
+        if verbose:
+            print(f"[verbose] Wrote {len(md)} chars to Markdown index")
+            print(f"[verbose] Wrote {len(json.dumps(entries))} chars to JSON index")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--vault-path", type=str, default=os.environ.get("VAULT_PATH", ""),
+    parser.add_argument("--vault-path", "--vault", type=str, default=os.environ.get("VAULT_PATH", ""),
                         help="Path to your Obsidian vault (defaults to VAULT_PATH env var).")
     parser.add_argument("--resources-folder", type=str, default="Resources/learning_inputs",
                         help="Folder (relative to vault) to scan for resource summaries.")
@@ -305,6 +347,8 @@ def main():
                         help="Do not write .bak backups before modifying files.")
     parser.add_argument("--dry-run", action="store_true",
                         help="Preview changes without modifying any files.")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Enable verbose output (detailed progress logging).")
     args = parser.parse_args()
 
     if not args.vault_path:
@@ -319,18 +363,30 @@ def main():
     if not resources_dir.exists():
         print(f"[warn] Resources folder does not exist: {resources_dir}")
         resources_dir.mkdir(parents=True, exist_ok=True)
+        if args.verbose:
+            print(f"[verbose] Created resources directory: {resources_dir}")
 
     if args.dry_run:
         print("[DRY-RUN MODE] No files will be modified\n")
     
+    if args.verbose:
+        print(f"[verbose] Vault path: {vault}")
+        print(f"[verbose] Resources directory: {resources_dir}")
+        print(f"[verbose] Markdown index: {index_md}")
+        print(f"[verbose] JSON index: {index_json}")
+        print(f"[verbose] Backfill missing: {not args.no_backfill}")
+        print(f"[verbose] Create backups: {not args.no_backup and not args.dry_run}")
+        print()
+    
     print(f"[info] Scanning: {resources_dir}")
     
-    # MINIMAL FIX: Prevent backups during dry-run
+    # Prevent backups during dry-run
     entries = scan_resources(
         resources_dir, 
         backfill_missing=(not args.no_backfill), 
-        create_backups=(False if args.dry_run else (not args.no_backup)),  # ← FIXED HERE
-        dry_run=args.dry_run
+        create_backups=(False if args.dry_run else (not args.no_backup)),
+        dry_run=args.dry_run,
+        verbose=args.verbose
     )
 
     # Filter include only 'resource' type
@@ -343,6 +399,9 @@ def main():
             include = str(t).lower() == "resource"
         if include:
             filtered.append(e)
+    
+    if args.verbose:
+        print(f"[verbose] Filtered to {len(filtered)} resource-type entries (from {len(entries)} total)")
 
     # Safe sort: use toordinal() and a safe fallback date to avoid Windows negative timestamp issues
     def sort_key(e):
@@ -356,7 +415,7 @@ def main():
     filtered.sort(key=sort_key)
 
     index_md.parent.mkdir(parents=True, exist_ok=True)
-    write_indexes(filtered, index_md, index_json, dry_run=args.dry_run)
+    write_indexes(filtered, index_md, index_json, dry_run=args.dry_run, verbose=args.verbose)
 
     total = len(entries)
     created = sum(1 for e in entries if not e.get("_had_yaml"))
