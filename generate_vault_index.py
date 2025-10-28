@@ -11,6 +11,7 @@ For learning resource management with YAML validation, use resource_indexer.py i
 Usage:
     python generate_vault_index.py
     python generate_vault_index.py --vault-path="C:/Your/Vault"
+    python generate_vault_index.py --dry-run
 
 Environment Variables:
     VAULT_PATH: Vault location (defaults to C:/Users/top2e/Sync)
@@ -27,6 +28,9 @@ Examples:
     
     # Custom output location
     python generate_vault_index.py --output="reports/vault_scan.json"
+    
+    # Dry run (scan only, no output file)
+    python generate_vault_index.py --dry-run
 """
 
 import os
@@ -83,6 +87,11 @@ def main():
         default=str(DEFAULT_OUTPUT),
         help="Output JSON file path (default: data/vault_index.json)"
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Scan vault but don't write output file (for testing)"
+    )
     args = parser.parse_args()
     
     vault = Path(args.vault_path).expanduser().resolve()
@@ -92,10 +101,14 @@ def main():
         print(f"[error] Vault path does not exist: {vault}")
         return
     
-    # Ensure output directory exists
-    output.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists (even in dry-run, for validation)
+    if not args.dry_run:
+        output.parent.mkdir(parents=True, exist_ok=True)
     
-    print(f"[info] Scanning vault: {vault}")
+    if args.dry_run:
+        print(f"[DRY RUN] Scanning vault: {vault}")
+    else:
+        print(f"[info] Scanning vault: {vault}")
     
     rows = []
     for p in vault.rglob("*.md"):
@@ -127,12 +140,15 @@ def main():
             "size": st.st_size,
         })
     
-    output.write_text(
-        json.dumps(rows, ensure_ascii=False, indent=2), 
-        encoding="utf-8"
-    )
-    
-    print(f"[ok] Indexed {len(rows)} notes to {output}")
+    if args.dry_run:
+        print(f"[DRY RUN] Would index {len(rows)} notes to {output}")
+        print(f"[DRY RUN] Validation complete - no files written")
+    else:
+        output.write_text(
+            json.dumps(rows, ensure_ascii=False, indent=2), 
+            encoding="utf-8"
+        )
+        print(f"[ok] Indexed {len(rows)} notes to {output}")
 
 
 if __name__ == "__main__":
