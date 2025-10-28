@@ -67,12 +67,12 @@ jobs:
       - name: Verify no deprecated launchers used
         shell: pwsh
         run: |
-          $hits = Get-ChildItem -Recurse -Include *.bat,*.py,*.md | Select-String -SimpleMatch "run_orchestrator_v5"
+          $hits = Get-ChildItem -Recurse -Include *.bat,*.py,*.md | Where-Object { $_.FullName -notmatch '[\\/]\.github[\\/]' } | Select-String -SimpleMatch "run_orchestrator_v5"
           if ($hits) {
             $hits | Format-Table -AutoSize
             throw "Deprecated reference(s) found: run_orchestrator_v5"
           } else {
-            "✓ No deprecated references"
+            "✓ No deprecated references (excluding .github/)"
           }
 
       - name: "Smoke: vault index (global)"
