@@ -1,4 +1,3 @@
-# .github/workflows/smoke-windows.yml
 name: Smoke (Windows dry-run)
 
 on:
@@ -47,11 +46,9 @@ jobs:
         run: |
           $Vault = "C:\Users\runneradmin\fake-vault"
           "VAULT_PATH=$Vault" | Out-File -FilePath $env:GITHUB_ENV -Append
-
           New-Item -Force -ItemType Directory "$Vault\Resources\learning_inputs" | Out-Null
           New-Item -Force -ItemType Directory "$Vault\Resources\summaries" | Out-Null
           New-Item -Force -ItemType Directory "$Vault\System" | Out-Null
-
           @"
           ---
           title: Test Note With YAML
@@ -63,15 +60,12 @@ jobs:
           ---
           Body with YAML.
           "@ | Out-File -FilePath "$Vault\Resources\learning_inputs\test1.md" -Encoding utf8
-
           "Test note without YAML" | Out-File -FilePath "$Vault\Resources\learning_inputs\test2.md" -Encoding utf8
 
-      # --- Policy: block deprecated launcher (flip to warn-only temporarily if needed) ---
       - name: Verify no deprecated launchers used
         shell: pwsh
         run: |
-          $hits = Get-ChildItem -Recurse -Include *.bat,*.py,*.md |
-                  Select-String -SimpleMatch "run_orchestrator_v5"
+          $hits = Get-ChildItem -Recurse -Include *.bat,*.py,*.md | Select-String -SimpleMatch "run_orchestrator_v5"
           if ($hits) {
             $hits | Format-Table -AutoSize
             throw "Deprecated reference(s) found: run_orchestrator_v5"
