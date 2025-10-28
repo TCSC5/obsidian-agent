@@ -101,9 +101,8 @@ def main():
         print(f"[error] Vault path does not exist: {vault}")
         return
     
-    # Ensure output directory exists (even in dry-run, for validation)
-    if not args.dry_run:
-        output.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists (validates output path even in dry-run)
+    output.parent.mkdir(parents=True, exist_ok=True)
     
     if args.dry_run:
         print(f"[DRY RUN] Scanning vault: {vault}")
