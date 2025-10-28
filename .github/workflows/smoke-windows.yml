@@ -30,7 +30,7 @@ jobs:
           python-version: '3.11'
 
       - name: Cache pip
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache@v4
         with:
           path: ~\AppData\Local\pip\Cache
           key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
