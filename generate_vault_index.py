@@ -10,10 +10,10 @@ For learning resource management with YAML validation, use resource_indexer.py i
 
 Usage:
     python generate_vault_index.py
-    python generate_vault_index.py --vault-path="C:\Your\Vault"
+    python generate_vault_index.py --vault-path="C:/Your/Vault"
 
 Environment Variables:
-    VAULT_PATH: Vault location (defaults to C:\Users\top2e\Sync)
+    VAULT_PATH: Vault location (defaults to C:/Users/top2e/Sync)
 
 Output:
     - data/vault_index.json (full vault index)
@@ -23,10 +23,10 @@ Examples:
     python generate_vault_index.py
     
     # Specify custom vault
-    python generate_vault_index.py --vault-path="D:\MyVault"
+    python generate_vault_index.py --vault-path="D:/MyVault"
     
     # Custom output location
-    python generate_vault_index.py --output="reports\vault_scan.json"
+    python generate_vault_index.py --output="reports/vault_scan.json"
 """
 
 import os
