@@ -365,7 +365,7 @@ def main():
     print(f"\n[summary] scanned={total} newly_yaml={created} updated_yaml={updated}")
     
     if args.dry_run:
-        print("\n✓ Dry run complete. Run without --dry-run to apply changes.")
+        print("\n[OK] Dry run complete. Run without --dry-run to apply changes.")
 
 if __name__ == "__main__":
     main()
