@@ -7,5 +7,5 @@ if exist venv\Scripts\activate.bat (
     call venv\Scripts\activate.bat
 )
 
-REM === Run summarizer agent v5 with all arguments ===
-python summarizer_agent_v5.py %*
+REM === Run summarizer agent (canonical version) ===
+python agents\summarizer_agent.py %*
