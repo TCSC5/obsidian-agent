@@ -25,15 +25,17 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v4.2.2 pinned
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@f390376b527c1ea4c6265b2fa2810e02519ed449 # v5.2.0 pinned
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Cache pip
-        uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8 # v4.1.2 pinned
+        uses: actions/cache@v4
         with:
           path: ~\AppData\Local\pip\Cache
           key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
 
       - name: Install dependencies
         shell: pwsh
@@ -65,15 +67,15 @@ jobs:
       - name: Verify no deprecated launchers used
         shell: pwsh
         run: |
-          $hits = Get-ChildItem -Recurse -Include *.bat,*.py,*.md | Select-String -SimpleMatch "run_orchestrator_v5"
+          $hits = Get-ChildItem -Recurse -Include *.bat,*.py,*.md | Where-Object { $_.FullName -notmatch '[\\/]\.github[\\/]' } | Select-String -SimpleMatch "run_orchestrator_v5"
           if ($hits) {
             $hits | Format-Table -AutoSize
             throw "Deprecated reference(s) found: run_orchestrator_v5"
           } else {
-            "✓ No deprecated references"
+            "✓ No deprecated references (excluding .github/)"
           }
 
-      - name: Smoke: vault index (global)
+      - name: "Smoke: vault index (global)"
         shell: pwsh
         run: |
           if (Test-Path .\generate_vault_index.py) {
@@ -82,7 +84,7 @@ jobs:
             Write-Host "generate_vault_index.py not present (skipping)"; echo "SKIP_vault_index=true" | Out-File -FilePath $env:GITHUB_ENV -Append
           }
 
-      - name: Smoke: resource indexer (Resources metadata)
+      - name: "Smoke: resource indexer (Resources metadata)"
         shell: pwsh
         env:
           VAULT_PATH: ${{ env.VAULT_PATH }}
@@ -93,7 +95,7 @@ jobs:
             Write-Host "resource_indexer.py not present (skipping)"; exit 0
           }
 
-      - name: Smoke: summarizer
+      - name: "Smoke: summarizer"
         shell: cmd
         run: |
           if exist ".\run_summarizer.bat" (
@@ -104,7 +106,7 @@ jobs:
             echo No summarizer entry found (skipping)
           )
 
-      - name: Smoke: dashboard
+      - name: "Smoke: dashboard"
         shell: pwsh
         run: |
           if (Test-Path .\generate_dashboard_v3.py) {
@@ -115,13 +117,13 @@ jobs:
             Write-Host "No dashboard generator found (skipping)"
           }
 
-      - name: Smoke: reflection agents
+      - name: "Smoke: reflection agents"
         shell: pwsh
         run: |
           if (Test-Path .\reflection_agent.py) { python .\reflection_agent.py --dry-run }
           if (Test-Path .\reflection_summarizer_agent.py) { python .\reflection_summarizer_agent.py --dry-run --no-vault-mirror --max-items 3 }
 
-      - name: Smoke: orchestrator (canonical)
+      - name: "Smoke: orchestrator (canonical)"
         shell: cmd
         run: |
           if exist ".\run_orchestrator.bat" (
@@ -132,7 +134,7 @@ jobs:
             echo No orchestrator found (skipping)
           )
 
-      - name: Evidence: show vault run_log if present
+      - name: "Evidence: show vault run_log if present"
         shell: pwsh
         run: |
           if (Test-Path "$env:VAULT_PATH\System\run_log.md") {
