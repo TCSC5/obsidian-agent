@@ -29,9 +29,9 @@ if exist data\incoming_links.json (
 REM --- Timestamp for logs (locale-independent PowerShell approach) ---
 for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd_HH-mm-ss"') do set TS=%%I
 
-REM --- Run the orchestrator ---
-echo [orchestrator] Running orchestrator_agent.py
-python orchestrator_agent.py %* 1> logs\orchestrator_!TS!.out.log 2> logs\orchestrator_!TS!.err.log
+REM --- Run the orchestrator (profiled version with --profile and --dry-run support) ---
+echo [orchestrator] Running orchestrator_agent_profiled.py
+python orchestrator_agent_profiled.py %* 1> logs\orchestrator_!TS!.out.log 2> logs\orchestrator_!TS!.err.log
 
 REM --- Check result ---
 if %ERRORLEVEL% EQU 0 (
