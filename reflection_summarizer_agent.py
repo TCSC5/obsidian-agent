@@ -6,6 +6,7 @@ Writes a repo copy and (optionally) mirrors into the vault.
 
 Usage (examples):
   python reflection_summarizer_agent.py --dry-run --no-vault-mirror
+  python reflection_summarizer_agent.py --dry-run --no-vault-mirror --max-items 3
   python reflection_summarizer_agent.py --in data\reflection_log.md --out data\reflection_summary.md
   python reflection_summarizer_agent.py --vault "%VAULT_PATH%" --mirror-dest System\reflection_summary.md
 """
@@ -165,6 +166,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Preview planned writes; do not modify files." )
     p.add_argument("--continue-on-error", action="store_true",
                    help="Log errors and continue execution." )
+    p.add_argument("--max-items", type=int, default=6,
+                   help="Maximum number of bullets/actions to extract (default: 6).")
     return p
 
 
@@ -176,7 +179,7 @@ def main() -> int:
         if not args.inp.exists():
             raise FileNotFoundError(f"input not found: {args.inp}")
         md = args.inp.read_text(encoding="utf-8")
-        summary = build_summary_text(md)
+        summary = build_summary_text(md, max_items=args.max_items)
         safe_write(args.out, summary, dry_run=args.dry_run)
         append_run_log(f"wrote reflection summary → {args.out}")
         if not args.no_vault_mirror:
