@@ -1,3 +1,4 @@
 advanced-security/python-dependency-submission@v[0-9]+
 actions/cache@v[0-9]+
+actions/checkout@v[0-9]+
 actions/setup-python@v[0-9]+
