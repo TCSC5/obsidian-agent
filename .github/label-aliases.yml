@@ -1,0 +1,12 @@
+# .github/label-aliases.yml
+canonical:
+  - name: "type:deps"
+  - name: "type:automation"
+  - name: "status:needs-review"
+
+aliases:
+  "deps": "type:deps"
+  "python": "type:deps"
+  "ci": "type:automation"
+  "automation": "type:automation"
+  "dependabot": "type:deps"
