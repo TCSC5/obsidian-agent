@@ -8,34 +8,25 @@ on:
       - 'requirements/**.txt'
       - 'pyproject.toml'
   schedule:
-    - cron: '0 9 * * 1'   # Mondays 09:00 UTC
+    - cron: '0 9 * * 1'
   workflow_dispatch:
 
 permissions:
   contents: read
-  security-events: write  # required to submit dependency snapshots
+  security-events: write
 
 jobs:
   dependency-submission:
     name: dependency-submission
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
-        # actions/checkout v5.0.0 (pinned)
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       - name: Set up Python
-        # actions/setup-python v6.0.0 (pinned)
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
         with:
           python-version: '3.11'
 
       - name: Submit Python dependencies
-        # ✅ this is the correct public action
-        # you can run it unpinned with @v3 and allowlist it
         uses: actions/dependency-submission@v3
-        # normally it auto-detects requirements*/pyproject, so no "with:" needed
-        # if you want to be explicit:
-        # with:
-        #   requirements-file: requirements.txt
