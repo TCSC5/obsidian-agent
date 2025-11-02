@@ -88,7 +88,6 @@ jobs:
                       "dependencies": set(),   # de-dupe while building
                   }
                   if missing_version:
-                      resolved[key]["_missing_version"] = True
 
               for dep in node.get("dependencies") or []:
                   if not isinstance(dep, dict):
