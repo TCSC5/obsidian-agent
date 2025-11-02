@@ -59,7 +59,7 @@ jobs:
               pkg = node["package"]
               name = pkg["package_name"]
               version = pkg["installed_version"]
-              key = name  # <-- GitHub wants package name as key, not name@version
+              key = name  # GitHub wants package name as key, not name@version
 
               if key not in resolved:
                   resolved[key] = {
