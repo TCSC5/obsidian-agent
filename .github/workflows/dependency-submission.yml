@@ -13,7 +13,7 @@ on:
 
 permissions:
   contents: read
-  security-events: write   # ← this is the important one
+  security-events: write   # required for /dependency-graph/snapshots
 
 jobs:
   dependency-submission:
@@ -21,10 +21,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        # actions/checkout v5.0.0 (pinned)
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       - name: Set up Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
+        # actions/setup-python v6.0.0 (pinned)
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
         with:
           python-version: '3.11'
 
@@ -49,17 +51,34 @@ jobs:
           import json, os
           from datetime import datetime, timezone
 
-          # load pipdeptree tree
+          # load pipdeptree output
           with open("deps.json", "r") as f:
-              tree = json.load(f)
+              raw = json.load(f)
 
           resolved = {}
+          skipped = 0
 
-          def add_pkg(node, direct=True):
-              pkg = node["package"]
-              name = pkg["package_name"]
-              version = pkg["installed_version"]
-              key = name  # GitHub wants package name as key, not name@version
+          def add_node(node, direct=True):
+              # skip non-dicts
+              if not isinstance(node, dict):
+                  return False
+
+              pkg = node.get("package")
+              if not pkg:
+                  return False
+
+              # pipdeptree sometimes calls it package_name, sometimes key
+              name = (
+                  pkg.get("package_name")
+                  or pkg.get("key")
+                  or pkg.get("name")
+              )
+              version = pkg.get("installed_version") or "0"
+
+              if not name:
+                  return False
+
+              key = name  # GitHub wants the package name as the key
 
               if key not in resolved:
                   resolved[key] = {
@@ -68,14 +87,34 @@ jobs:
                       "dependencies": []
                   }
 
-              for dep in node.get("dependencies", []):
-                  dep_name = dep["package"]["package_name"]
-                  resolved[key]["dependencies"].append(dep_name)
-                  add_pkg(dep, direct=False)
+              deps = node.get("dependencies") or []
+              for dep in deps:
+                  if not isinstance(dep, dict):
+                      continue
+                  dep_pkg = dep.get("package")
+                  if not dep_pkg:
+                      continue
+                  dep_name = (
+                      dep_pkg.get("package_name")
+                      or dep_pkg.get("key")
+                      or dep_pkg.get("name")
+                  )
+                  if not dep_name:
+                      continue
 
-          # top-level packages are "direct"
-          for pkg in tree:
-              add_pkg(pkg, direct=True)
+                  if dep_name not in resolved[key]["dependencies"]:
+                      resolved[key]["dependencies"].append(dep_name)
+
+                  # recurse into dependency
+                  add_node(dep, direct=False)
+
+              return True
+
+          # top-level nodes are "direct"
+          for entry in raw:
+              ok = add_node(entry, direct=True)
+              if not ok:
+                  skipped += 1
 
           snapshot = {
               "version": 0,
@@ -106,7 +145,10 @@ jobs:
 
           with open("snapshot.json", "w") as f:
               json.dump(snapshot, f, indent=2)
-          print("✅ snapshot.json written")
+
+          print(f"✅ built snapshot.json with {len(resolved)} packages")
+          if skipped:
+              print(f"⚠️ skipped {skipped} pipdeptree node(s) without 'package'")
           EOF
 
       - name: Submit dependency snapshot via API
@@ -114,7 +156,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
-          echo "Submitting snapshot.json to GitHub dependency-graph…"
+          echo "Submitting snapshot.json to GitHub dependency graph…"
           curl --fail-with-body -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
