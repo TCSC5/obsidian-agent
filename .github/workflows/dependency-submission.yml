@@ -7,7 +7,6 @@ on:
       - 'requirements.txt'
       - 'requirements/**.txt'
       - 'pyproject.toml'
-  # keep this ONLY if you want PRs from the same repo to run it
   pull_request:
     branches: [ main ]
     paths:
@@ -26,6 +25,8 @@ jobs:
   dependency-submission:
     name: dependency-submission
     runs-on: ubuntu-latest
+    # don’t try to submit from fork PRs with read-only token
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
       - name: Checkout
@@ -36,10 +37,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      # NOTE:
-      # GitHub's dep submission action expects a GitHub dependency snapshot.
-      # For now we emit pipdeptree JSON as a "good enough" manifest.
-      # TODO: if this action ever rejects the file, add a converter step.
       - name: Build dependency manifest
         run: |
           python -m pip install --upgrade pip
@@ -48,7 +45,8 @@ jobs:
           pipdeptree --warn silence --json-tree > deps.json
 
       - name: Submit dependency snapshot
-        uses: github/dependency-submission-action@v4
+        # ✅ correct org + repo
+        uses: actions/dependency-submission-action@v4
         with:
           token: ${{ github.token }}
           job-name: python-deps
