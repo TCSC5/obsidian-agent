@@ -34,7 +34,7 @@ jobs:
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
-            # tool to inspect the dep tree
+          # tool to inspect the dep tree
           python -m pip install pipdeptree
           pipdeptree --warn silence --json-tree > deps.json
 
