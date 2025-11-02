@@ -13,7 +13,7 @@ on:
 
 permissions:
   contents: read
-  security-events: write   # what GitHub docs say this endpoint wants
+  security-events: write   # required for dependency-graph snapshots
 
 jobs:
   dependency-submission:
@@ -51,6 +51,7 @@ jobs:
           import json, os
           from datetime import datetime, timezone
 
+          # 1) load pipdeptree output
           with open("deps.json", "r") as f:
               raw = json.load(f)
 
@@ -58,6 +59,7 @@ jobs:
           skipped = 0
 
           def add_node(node, direct=True):
+              # skip weird entries
               if not isinstance(node, dict):
                   return False
 
@@ -71,24 +73,22 @@ jobs:
                   or pkg.get("name")
               )
               version = pkg.get("installed_version")
-              missing_version = False
               if not version:
                   version = "0"
-                  missing_version = True
 
               if not name:
                   return False
 
-              key = name  # GitHub wants name → deps
+              key = name  # GitHub wants package name as key
 
               if key not in resolved:
                   resolved[key] = {
                       "package_url": f"pkg:pypi/{name}@{version}",
                       "relationship": "direct" if direct else "indirect",
-                      "dependencies": set(),   # de-dupe while building
+                      "dependencies": set(),  # we'll convert to list later
                   }
-                  if missing_version:
 
+              # walk dependencies safely
               for dep in node.get("dependencies") or []:
                   if not isinstance(dep, dict):
                       continue
@@ -108,16 +108,18 @@ jobs:
 
               return True
 
+          # 2) process all top-level nodes
           for entry in raw:
               ok = add_node(entry, direct=True)
               if not ok:
                   skipped += 1
 
-          # turn sets → lists
+          # 3) turn sets → lists for GitHub
           for data in resolved.values():
               if isinstance(data.get("dependencies"), set):
                   data["dependencies"] = list(data["dependencies"])
 
+          # 4) build snapshot
           snapshot = {
               "version": 0,
               "job": {
@@ -160,7 +162,6 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           echo "Submitting snapshot.json to GitHub dependency graph…"
-          # We'll capture the body + status so we can special-case 403.
           set -e
           RESPONSE_FILE=$(mktemp)
           STATUS_CODE=$(curl -sS -w "%{http_code}" -o "$RESPONSE_FILE" \
@@ -179,11 +180,10 @@ jobs:
             exit 0
           fi
 
-          # Handle 403 Forbidden - common when dependency submission is disabled
           if [ "$STATUS_CODE" = "403" ]; then
             echo "⚠️ 403: resource not accessible by integration. This GitHub token cannot write dependency snapshots."
             echo "    This is expected in orgs without dependency submission enabled for Actions."
-            # do NOT fail the job - we just degrade gracefully
+            # don't fail CI for this case
             exit 0
           fi
 
