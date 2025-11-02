@@ -180,7 +180,7 @@ jobs:
             exit 0
           fi
 
-          # This is the one you just hit
+          # Handle 403 Forbidden - common when dependency submission is disabled
           if [ "$STATUS_CODE" = "403" ]; then
             echo "⚠️ 403: resource not accessible by integration. This GitHub token cannot write dependency snapshots."
             echo "    This is expected in orgs without dependency submission enabled for Actions."
