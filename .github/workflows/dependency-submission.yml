@@ -19,13 +19,13 @@ on:
 
 permissions:
   contents: read
-  security-events: write
+  security-events: write   # needed to submit dependency snapshots
 
 jobs:
   dependency-submission:
     name: dependency-submission
     runs-on: ubuntu-latest
-    # don’t try to submit from fork PRs with read-only token
+    # don’t try to submit from forked PRs (token is read-only there)
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
@@ -45,8 +45,8 @@ jobs:
           pipdeptree --warn silence --json-tree > deps.json
 
       - name: Submit dependency snapshot
-        # ✅ correct org + repo
-        uses: actions/dependency-submission-action@v4
+        # 👈 this is the name GitHub just told you to use
+        uses: github/dependency-submission-action@v4
         with:
           token: ${{ github.token }}
           job-name: python-deps
