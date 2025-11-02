@@ -7,48 +7,118 @@ on:
       - 'requirements.txt'
       - 'requirements/**.txt'
       - 'pyproject.toml'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'requirements.txt'
-      - 'requirements/**.txt'
-      - 'pyproject.toml'
   schedule:
     - cron: '0 9 * * 1'
   workflow_dispatch:
 
 permissions:
   contents: read
-  security-events: write   # needed to submit dependency snapshots
+  security-events: write   # ← this is the important one
 
 jobs:
   dependency-submission:
-    name: dependency-submission
     runs-on: ubuntu-latest
-    # don’t try to submit from forked PRs (token is read-only there)
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
 
       - name: Set up Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
         with:
           python-version: '3.11'
 
-      - name: Build dependency manifest
+      - name: Install dependencies and generate manifest
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pipdeptree
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+            # tool to inspect the dep tree
+          python -m pip install pipdeptree
           pipdeptree --warn silence --json-tree > deps.json
 
-      - name: Submit dependency snapshot
-        # 👈 this is the name GitHub just told you to use
-        uses: github/dependency-submission-action@v4
-        with:
-          token: ${{ github.token }}
-          job-name: python-deps
-          snapshot-name: python-deps
-          manifest: deps.json
+      - name: Convert pipdeptree to GitHub snapshot format
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - << 'EOF'
+          import json, os
+          from datetime import datetime, timezone
+
+          # load pipdeptree tree
+          with open("deps.json", "r") as f:
+              tree = json.load(f)
+
+          resolved = {}
+
+          def add_pkg(node, direct=True):
+              pkg = node["package"]
+              name = pkg["package_name"]
+              version = pkg["installed_version"]
+              key = name  # <-- GitHub wants package name as key, not name@version
+
+              if key not in resolved:
+                  resolved[key] = {
+                      "package_url": f"pkg:pypi/{name}@{version}",
+                      "relationship": "direct" if direct else "indirect",
+                      "dependencies": []
+                  }
+
+              for dep in node.get("dependencies", []):
+                  dep_name = dep["package"]["package_name"]
+                  resolved[key]["dependencies"].append(dep_name)
+                  add_pkg(dep, direct=False)
+
+          # top-level packages are "direct"
+          for pkg in tree:
+              add_pkg(pkg, direct=True)
+
+          snapshot = {
+              "version": 0,
+              "job": {
+                  "id": os.environ.get("GITHUB_RUN_ID", "dependency-submission"),
+                  "correlator": "python-deps"
+              },
+              "sha": os.environ.get("GITHUB_SHA", ""),
+              "ref": os.environ.get("GITHUB_REF", "refs/heads/main"),
+              "detector": {
+                  "name": "obsidian-agent-python-deps",
+                  "version": "1.0.0",
+                  "url": f"https://github.com/{os.environ.get('GITHUB_REPOSITORY','')}"
+              },
+              "metadata": {
+                  "scanned": datetime.now(timezone.utc).isoformat()
+              },
+              "manifests": {
+                  "requirements.txt": {
+                      "name": "requirements.txt",
+                      "file": {
+                          "source_location": "requirements.txt"
+                      },
+                      "resolved": resolved
+                  }
+              }
+          }
+
+          with open("snapshot.json", "w") as f:
+              json.dump(snapshot, f, indent=2)
+          print("✅ snapshot.json written")
+          EOF
+
+      - name: Submit dependency snapshot via API
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "Submitting snapshot.json to GitHub dependency-graph…"
+          curl --fail-with-body -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$REPO/dependency-graph/snapshots" \
+            --data-binary @snapshot.json
+          echo "✅ Submitted dependency snapshot to GitHub"
