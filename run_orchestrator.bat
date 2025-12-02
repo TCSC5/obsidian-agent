@@ -8,6 +8,9 @@ REM --- Activate venv if it exists ---
 if exist venv\Scripts\activate.bat (
     echo [orchestrator] Activating virtual environment...
     call venv\Scripts\activate.bat
+) else if exist .venv\Scripts\activate.bat (
+    echo [orchestrator] Activating .venv...
+    call .venv\Scripts\activate.bat
 ) else (
     echo [orchestrator] No venv found, using system Python
 )
