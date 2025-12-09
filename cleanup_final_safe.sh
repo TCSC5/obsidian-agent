@@ -26,7 +26,7 @@ echo "[2/3] Archiving redundant launchers..."
 for f in run_all.bat run_all_with_architect.bat run_decision.bat run_full.bat \
          run_maint.bat run_orchestrator_v5.bat run_summarizer.bat \
          run_main_with_venv.bat run_fixed_main.bat run_planner_agent.bat \
-         run_training.bat run_pitch_deck.bat run_insights_agent.bat \
+         run_pitch_deck.bat run_insights_agent.bat \
          run_memory_feedback.bat run_learning_loop.bat run_agent_performance.bat; do
     if [ -f "$f" ]; then
         mv "$f" _archive/legacy_launchers/
