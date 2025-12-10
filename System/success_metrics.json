@@ -1,0 +1,48 @@
+{
+  "synergy_runs": [
+    {
+      "run_id": "2025-11-16T21:34:14",
+      "timestamp": "2025-11-16 21:34:14",
+      "counts": {
+        "notes_scored": 0,
+        "pitches": 0,
+        "insights": 0,
+        "high_disagreement": 0
+      },
+      "refined_summary": {
+        "mean": 0,
+        "p50": 0,
+        "p90": 0
+      },
+      "legacy_summary": {
+        "mean": 0,
+        "p50": 0,
+        "p90": 0
+      },
+      "composite_summary": {
+        "mean": 0,
+        "p50": 0,
+        "p90": 0
+      },
+      "method_versions": {
+        "refined": "1.0.1",
+        "legacy": "0.9.1",
+        "composite": "1.0.1"
+      }
+    }
+  ],
+  "settings": {
+    "synergy_weights": {
+      "link_density": 0.45,
+      "tag_overlap": 0.3,
+      "ripple": 0.25
+    },
+    "blend": {
+      "alpha_refined": 0.7,
+      "ema_span": 5,
+      "legacy_norm": "percentile",
+      "links_identity": "auto",
+      "write_aliases": false
+    }
+  }
+}

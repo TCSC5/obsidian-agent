@@ -1,0 +1,1226 @@
+[
+  {
+    "path": "CEO Journal (20251003).md",
+    "folder": "",
+    "title": "CEO Journal (20251003)",
+    "tags": "",
+    "mtime": 1759497376,
+    "size": 2763
+  },
+  {
+    "path": "Codex Vibe-Coding Reference.md",
+    "folder": "",
+    "title": "Codex Vibe-Coding Reference",
+    "tags": "",
+    "mtime": 1758485297,
+    "size": 5266
+  },
+  {
+    "path": "dashboard.md",
+    "folder": "",
+    "title": "📊 Obsidian Agent Dashboard — 2025-09-04 19:59",
+    "tags": "",
+    "mtime": 1757788699,
+    "size": 10459
+  },
+  {
+    "path": "dashboard_sections.md",
+    "folder": "",
+    "title": "🧭 Dashboard: Control Panel",
+    "tags": "",
+    "mtime": 1755989850,
+    "size": 4577
+  },
+  {
+    "path": "Datalake 2.md",
+    "folder": "",
+    "title": "Lakehouse Architecture: A Comprehensive Guide",
+    "tags": "",
+    "mtime": 1759297836,
+    "size": 57743
+  },
+  {
+    "path": "Datalake.md",
+    "folder": "",
+    "title": "Lakehouse Architecture: A Comprehensive Guide",
+    "tags": "",
+    "mtime": 1759277647,
+    "size": 10919
+  },
+  {
+    "path": "obsidian_agent_flow_after_insights_pitch.md",
+    "folder": "",
+    "title": "obsidian agent flow after insights pitch",
+    "tags": "",
+    "mtime": 1755978674,
+    "size": 1166
+  },
+  {
+    "path": "Resources.md",
+    "folder": "",
+    "title": "Resources",
+    "tags": "",
+    "mtime": 1755989048,
+    "size": 0
+  },
+  {
+    "path": "00_Inbox/ai_learning_gameplan.md",
+    "folder": "00_Inbox",
+    "title": "AI Mastery Learning Gameplan",
+    "tags": "",
+    "mtime": 1756652294,
+    "size": 12901
+  },
+  {
+    "path": "00_Inbox/chain_of_thought_reference.md",
+    "folder": "00_Inbox",
+    "title": "Chain-of-Thought Prompting Quick Reference Guide",
+    "tags": "",
+    "mtime": 1756652314,
+    "size": 4488
+  },
+  {
+    "path": "00_Inbox/prompt_patterns_table.md",
+    "folder": "00_Inbox",
+    "title": "Prompt Patterns Quick Reference Guide",
+    "tags": "",
+    "mtime": 1756652309,
+    "size": 4949
+  },
+  {
+    "path": "GPT Agent/GPT_Agent_Vault_Setup_Profile.md",
+    "folder": "GPT Agent",
+    "title": "GPT Agent Setup – Vault Use Profile",
+    "tags": "[setup, gpt-assistant, second-brain]",
+    "mtime": 1754018897,
+    "size": 9164
+  },
+  {
+    "path": "logs/gating_report.md",
+    "folder": "logs",
+    "title": "Gating Report — 2025-08-30 08:45:35",
+    "tags": "",
+    "mtime": 1756787329,
+    "size": 6971
+  },
+  {
+    "path": "logs/summarizer_report.md",
+    "folder": "logs",
+    "title": "Summarizer v5 Report\\n\\n- Created: 0\\n- Updated: 3\\n- Skipped: 0\\n- Generated: 3\\n- Run at: 2025-08-31 15:42\\n",
+    "tags": "",
+    "mtime": 1756680351,
+    "size": 112
+  },
+  {
+    "path": "Plans/weekly_plan.md",
+    "folder": "Plans",
+    "title": "📆 Weekly Plan (Generated)",
+    "tags": "",
+    "mtime": 1757041142,
+    "size": 4546
+  },
+  {
+    "path": "Quizzes/agent-learning-checklist_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: agent-learning-checklist",
+    "tags": "",
+    "mtime": 1758166862,
+    "size": 5174
+  },
+  {
+    "path": "Quizzes/AI_Agents_PostgreSQL_Tutor_Guide_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: AI Agents PostgreSQL Tutor Guide",
+    "tags": "",
+    "mtime": 1758166862,
+    "size": 2796
+  },
+  {
+    "path": "Quizzes/AI_Data_Literacy_HowToGuide_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: AI_Data_Literacy_HowToGuide",
+    "tags": "",
+    "mtime": 1758166862,
+    "size": 5431
+  },
+  {
+    "path": "Quizzes/ai_data_strategy_guide_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: ai_data_strategy_guide",
+    "tags": "",
+    "mtime": 1758166881,
+    "size": 5435
+  },
+  {
+    "path": "Quizzes/ai_literacy_guide_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: ai_literacy_guide",
+    "tags": "",
+    "mtime": 1758166882,
+    "size": 4950
+  },
+  {
+    "path": "Quizzes/ai_unemployment_analysis_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: ai unemployment analysis",
+    "tags": "",
+    "mtime": 1758166904,
+    "size": 2953
+  },
+  {
+    "path": "Quizzes/career_development_advice_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: career development advice",
+    "tags": "",
+    "mtime": 1758167524,
+    "size": 2603
+  },
+  {
+    "path": "Quizzes/economics_finance_training_notes_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: economics_finance_training_notes",
+    "tags": "",
+    "mtime": 1758166862,
+    "size": 5791
+  },
+  {
+    "path": "Quizzes/michael_assessment_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: michael assessment",
+    "tags": "",
+    "mtime": 1758166862,
+    "size": 2021
+  },
+  {
+    "path": "Quizzes/Prompt_Engineering_Guide_TutorGPT_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: Prompt_Engineering_Guide_TutorGPT",
+    "tags": "",
+    "mtime": 1758166862,
+    "size": 5610
+  },
+  {
+    "path": "Quizzes/symposium_journal_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: symposium_journal",
+    "tags": "",
+    "mtime": 1758166862,
+    "size": 5345
+  },
+  {
+    "path": "Quizzes/western_dynamism_reflection_quiz.md",
+    "folder": "Quizzes",
+    "title": "Quiz: western dynamism reflection",
+    "tags": "",
+    "mtime": 1758166862,
+    "size": 2756
+  },
+  {
+    "path": "Resources/edit_checklist.md",
+    "folder": "Resources",
+    "title": "📝 Resource Edit Checklist",
+    "tags": "",
+    "mtime": 1757792749,
+    "size": 1593
+  },
+  {
+    "path": "Resources/resource_index.md",
+    "folder": "Resources",
+    "title": "📚 Resource Index",
+    "tags": "",
+    "mtime": 1757882753,
+    "size": 2724
+  },
+  {
+    "path": "Resources/resource_yaml_checklist.md",
+    "folder": "Resources",
+    "title": "✅ Resource YAML Checklist",
+    "tags": "",
+    "mtime": 1757742845,
+    "size": 2262
+  },
+  {
+    "path": "Resources/Tags.md",
+    "folder": "Resources",
+    "title": "Tags",
+    "tags": "",
+    "mtime": 1760848909,
+    "size": 1977
+  },
+  {
+    "path": "System/agent_architect_report.md",
+    "folder": "System",
+    "title": "🧩 Agent Architect — System Review (2025-09-04 19:59)",
+    "tags": "",
+    "mtime": 1757041165,
+    "size": 2097
+  },
+  {
+    "path": "System/agent_performance_report.md",
+    "folder": "System",
+    "title": "Agent Performance Report — 2025-08-24 08:57",
+    "tags": "",
+    "mtime": 1756055313,
+    "size": 458
+  },
+  {
+    "path": "System/decision_support.md",
+    "folder": "System",
+    "title": "🧭 Decision Support — Top 5 to Act On (2025-09-04 19:59)",
+    "tags": "",
+    "mtime": 1757041157,
+    "size": 2257
+  },
+  {
+    "path": "System/feedback_log.md",
+    "folder": "System",
+    "title": "🧠 Memory + Feedback Log — 2025-08-20 03:43",
+    "tags": "",
+    "mtime": 1755754223,
+    "size": 405
+  },
+  {
+    "path": "System/insight_evolution.md",
+    "folder": "System",
+    "title": "🔄 Insight Evolution Tracker — 2025-09-04 19:59",
+    "tags": "",
+    "mtime": 1760851033,
+    "size": 752
+  },
+  {
+    "path": "System/learning_loops.md",
+    "folder": "System",
+    "title": "🔄 Long-Term Learning Loop — 2025-08-24 08:57",
+    "tags": "",
+    "mtime": 1756051216,
+    "size": 248
+  },
+  {
+    "path": "System/reflection_log.md",
+    "folder": "System",
+    "title": "🔁 GPT Reflection Log",
+    "tags": "",
+    "mtime": 1756055322,
+    "size": 19484
+  },
+  {
+    "path": "System/reflection_summary.md",
+    "folder": "System",
+    "title": "🪞 Reflection Executive Summary — 2025-09-04 19:59",
+    "tags": "",
+    "mtime": 1760851032,
+    "size": 1082
+  },
+  {
+    "path": "System/run_log.md",
+    "folder": "System",
+    "title": "📸 Snapshot Log — 2025-08-20 04:58:24",
+    "tags": "",
+    "mtime": 1756055325,
+    "size": 24502
+  },
+  {
+    "path": "System/run_profiles.md",
+    "folder": "System",
+    "title": "📝 Orchestrator Run Profiles — Cheat Sheet",
+    "tags": "",
+    "mtime": 1756662993,
+    "size": 2362
+  },
+  {
+    "path": "System/sensitivity_options_reference.md",
+    "folder": "System",
+    "title": "Sensitivity Options Reference",
+    "tags": "",
+    "mtime": 1755974104,
+    "size": 1262
+  },
+  {
+    "path": "System/snapshot_log.md",
+    "folder": "System",
+    "title": "Snapshot 2025-08-30 17:59:02",
+    "tags": "",
+    "mtime": 1756663336,
+    "size": 674
+  },
+  {
+    "path": "System/success_report.md",
+    "folder": "System",
+    "title": "Success Report — 2025-08-20 22:29",
+    "tags": "",
+    "mtime": 1755754217,
+    "size": 73
+  },
+  {
+    "path": "System/Training MVP Checklist.md",
+    "folder": "System",
+    "title": "📘 Training MVP Checklist",
+    "tags": "",
+    "mtime": 1757816833,
+    "size": 1412
+  },
+  {
+    "path": "System/Seeds/README.md",
+    "folder": "System/Seeds",
+    "title": "Metadata Seeds",
+    "tags": "",
+    "mtime": 1755998205,
+    "size": 356
+  },
+  {
+    "path": "System/Seeds/seed_status_archived.md",
+    "folder": "System/Seeds",
+    "title": "Seed Status — archived",
+    "tags": "",
+    "mtime": 1755997988,
+    "size": 151
+  },
+  {
+    "path": "System/Seeds/seed_status_completed.md",
+    "folder": "System/Seeds",
+    "title": "Seed Status — completed",
+    "tags": "",
+    "mtime": 1755998194,
+    "size": 153
+  },
+  {
+    "path": "System/Seeds/seed_status_draft.md",
+    "folder": "System/Seeds",
+    "title": "Seed Status — draft",
+    "tags": "",
+    "mtime": 1756006432,
+    "size": 141
+  },
+  {
+    "path": "System/Seeds/seed_status_enriched.md",
+    "folder": "System/Seeds",
+    "title": "Seed Status — enriched",
+    "tags": "",
+    "mtime": 1756007435,
+    "size": 150
+  },
+  {
+    "path": "System/Seeds/seed_status_gated.md",
+    "folder": "System/Seeds",
+    "title": "Seed Status — gated",
+    "tags": "",
+    "mtime": 1756006432,
+    "size": 141
+  },
+  {
+    "path": "System/Seeds/seed_status_in-progress.md",
+    "folder": "System/Seeds",
+    "title": "Seed Status — in-progress",
+    "tags": "",
+    "mtime": 1756006102,
+    "size": 159
+  },
+  {
+    "path": "System/Seeds/seed_status_link-pending.md",
+    "folder": "System/Seeds",
+    "title": "Seed Status — link-pending",
+    "tags": "",
+    "mtime": 1756009343,
+    "size": 162
+  },
+  {
+    "path": "System/Seeds/seed_status_ready.md",
+    "folder": "System/Seeds",
+    "title": "Seed Status — ready",
+    "tags": "",
+    "mtime": 1756006431,
+    "size": 141
+  },
+  {
+    "path": "System/Seeds/seed_status_review-needed.md",
+    "folder": "System/Seeds",
+    "title": "Seed Status — review-needed",
+    "tags": "",
+    "mtime": 1755998199,
+    "size": 165
+  },
+  {
+    "path": "System/Seeds/seed_type_checklist.md",
+    "folder": "System/Seeds",
+    "title": "Seed Type — checklist",
+    "tags": "",
+    "mtime": 1756006049,
+    "size": 148
+  },
+  {
+    "path": "System/Seeds/seed_type_framework.md",
+    "folder": "System/Seeds",
+    "title": "Seed Type — framework",
+    "tags": "",
+    "mtime": 1755998206,
+    "size": 148
+  },
+  {
+    "path": "System/Seeds/seed_type_idea.md",
+    "folder": "System/Seeds",
+    "title": "Seed Type — idea",
+    "tags": "",
+    "mtime": 1756006430,
+    "size": 133
+  },
+  {
+    "path": "System/Seeds/seed_type_insight.md",
+    "folder": "System/Seeds",
+    "title": "Seed Type — insight",
+    "tags": "",
+    "mtime": 1756051214,
+    "size": 142
+  },
+  {
+    "path": "System/Seeds/seed_type_log.md",
+    "folder": "System/Seeds",
+    "title": "Seed Type — log",
+    "tags": "",
+    "mtime": 1756006437,
+    "size": 130
+  },
+  {
+    "path": "System/Seeds/seed_type_pitch.md",
+    "folder": "System/Seeds",
+    "title": "Seed Type — pitch",
+    "tags": "",
+    "mtime": 1756006048,
+    "size": 136
+  },
+  {
+    "path": "System/Seeds/seed_type_reference.md",
+    "folder": "System/Seeds",
+    "title": "Seed Type — reference",
+    "tags": "",
+    "mtime": 1756009231,
+    "size": 148
+  },
+  {
+    "path": "System/Seeds/seed_type_summary.md",
+    "folder": "System/Seeds",
+    "title": "Seed Type — summary",
+    "tags": "",
+    "mtime": 1755997988,
+    "size": 143
+  },
+  {
+    "path": "System/Seeds/areas/seed_area_Learning.md",
+    "folder": "System/Seeds/areas",
+    "title": "Seed area — Learning",
+    "tags": "",
+    "mtime": 1756008261,
+    "size": 162
+  },
+  {
+    "path": "System/Seeds/areas/seed_area_Personal.md",
+    "folder": "System/Seeds/areas",
+    "title": "Seed area — Personal",
+    "tags": "",
+    "mtime": 1756008261,
+    "size": 162
+  },
+  {
+    "path": "System/Seeds/areas/seed_area_Projects-Ops.md",
+    "folder": "System/Seeds/areas",
+    "title": "Seed area — Projects-Ops",
+    "tags": "",
+    "mtime": 1756008261,
+    "size": 174
+  },
+  {
+    "path": "System/Seeds/areas/seed_area_Research.md",
+    "folder": "System/Seeds/areas",
+    "title": "Seed area — Research",
+    "tags": "",
+    "mtime": 1756008261,
+    "size": 162
+  },
+  {
+    "path": "System/Seeds/areas/seed_area_Systems.md",
+    "folder": "System/Seeds/areas",
+    "title": "Seed area — Systems",
+    "tags": "",
+    "mtime": 1756008261,
+    "size": 159
+  },
+  {
+    "path": "System/Seeds/areas/seed_area_Work.md",
+    "folder": "System/Seeds/areas",
+    "title": "Seed area — Work",
+    "tags": "",
+    "mtime": 1756008261,
+    "size": 150
+  },
+  {
+    "path": "System/Seeds/areas/seed_area_Writing.md",
+    "folder": "System/Seeds/areas",
+    "title": "Seed area — Writing",
+    "tags": "",
+    "mtime": 1756008261,
+    "size": 159
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_area_Learning.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed area — Learning",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 172
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_area_Personal.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed area — Personal",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 172
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_area_Projects-Ops.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed area — Projects-Ops",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 184
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_area_Research.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed area — Research",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 172
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_area_Systems.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed area — Systems",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 169
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_area_Work.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed area — Work",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 160
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_area_Writing.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed area — Writing",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 169
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_resource_bucket_Books-Articles.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed resource_bucket — Books-Articles",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 223
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_resource_bucket_Checklists.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed resource_bucket — Checklists",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 211
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_resource_bucket_Code.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed resource_bucket — Code",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 193
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_resource_bucket_Dashboards.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed resource_bucket — Dashboards",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 211
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_resource_bucket_Data.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed resource_bucket — Data",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 193
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_resource_bucket_Prompts.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed resource_bucket — Prompts",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 202
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_resource_bucket_Reports.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed resource_bucket — Reports",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 202
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_resource_bucket_Research.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed resource_bucket — Research",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 205
+  },
+  {
+    "path": "System/Seeds/areas_resources/seed_resource_bucket_Templates.md",
+    "folder": "System/Seeds/areas_resources",
+    "title": "Seed resource_bucket — Templates",
+    "tags": "",
+    "mtime": 1756008272,
+    "size": 208
+  },
+  {
+    "path": "System/Seeds/metadata/seed_link_status_link-pending.md",
+    "folder": "System/Seeds/metadata",
+    "title": "Seed link_status — link-pending",
+    "tags": "",
+    "mtime": 1756051048,
+    "size": 194
+  },
+  {
+    "path": "System/Seeds/metadata/seed_link_status_linked.md",
+    "folder": "System/Seeds/metadata",
+    "title": "Seed link_status — linked",
+    "tags": "",
+    "mtime": 1756051043,
+    "size": 176
+  },
+  {
+    "path": "System/Seeds/metadata/seed_link_status_link_pending.md",
+    "folder": "System/Seeds/metadata",
+    "title": "Seed link_status — link_pending",
+    "tags": "",
+    "mtime": 1756006835,
+    "size": 195
+  },
+  {
+    "path": "System/Seeds/metadata/seed_meta_status_completed.md",
+    "folder": "System/Seeds/metadata",
+    "title": "Seed meta_status — completed",
+    "tags": "",
+    "mtime": 1756051039,
+    "size": 185
+  },
+  {
+    "path": "System/Seeds/metadata/seed_meta_status_enriched.md",
+    "folder": "System/Seeds/metadata",
+    "title": "Seed meta_status — enriched",
+    "tags": "",
+    "mtime": 1756051049,
+    "size": 182
+  },
+  {
+    "path": "System/Seeds/metadata/seed_meta_status_metadata_pending.md",
+    "folder": "System/Seeds/metadata",
+    "title": "Seed meta_status — metadata_pending",
+    "tags": "",
+    "mtime": 1756051210,
+    "size": 206
+  },
+  {
+    "path": "System/Seeds/metadata/seed_meta_status_needs-review.md",
+    "folder": "System/Seeds/metadata",
+    "title": "Seed meta_status — needs-review",
+    "tags": "",
+    "mtime": 1756051135,
+    "size": 194
+  },
+  {
+    "path": "System/Seeds/metadata/seed_meta_status_needs_review.md",
+    "folder": "System/Seeds/metadata",
+    "title": "Seed meta_status — needs_review",
+    "tags": "",
+    "mtime": 1756051051,
+    "size": 194
+  },
+  {
+    "path": "Resources/learning_inputs/2025–26 AI & Data-Center Infrastructure Investment Playbook.md",
+    "folder": "Resources/learning_inputs",
+    "title": "2025–26 AI & Data-Center Infrastructure Investment Playbook",
+    "tags": "[investment-strategy, tech_infra, macro_housing, grid, ai]",
+    "mtime": 1762235455,
+    "size": 4935
+  },
+  {
+    "path": "Resources/learning_inputs/A Critical Macroeconomic Perspective - Fiscal Architecture and Wealth Decline.md",
+    "folder": "Resources/learning_inputs",
+    "title": "📘 Lecture Title: \"Fiscal Dominance and the Architecture of Economic Decline: A Critical Macroeconomic Perspective\"",
+    "tags": "",
+    "mtime": 1757840866,
+    "size": 6728
+  },
+  {
+    "path": "Resources/learning_inputs/agent-learning-checklist.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "agent learning checklist.cheatsheet",
+    "tags": "",
+    "mtime": 1758996515,
+    "size": 2614
+  },
+  {
+    "path": "Resources/learning_inputs/agent-learning-checklist.md",
+    "folder": "Resources/learning_inputs",
+    "title": "agent learning checklist",
+    "tags": "",
+    "mtime": 1758996513,
+    "size": 3292
+  },
+  {
+    "path": "Resources/learning_inputs/AI_Agents_PostgreSQL_Tutor_Guide.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "AI Agents PostgreSQL Tutor Guide.cheatsheet",
+    "tags": "",
+    "mtime": 1758166808,
+    "size": 2351
+  },
+  {
+    "path": "Resources/learning_inputs/AI_Agents_PostgreSQL_Tutor_Guide.md",
+    "folder": "Resources/learning_inputs",
+    "title": "AI Agents PostgreSQL Tutor Guide",
+    "tags": "",
+    "mtime": 1758996768,
+    "size": 5574
+  },
+  {
+    "path": "Resources/learning_inputs/AI_Data_Literacy_HowToGuide.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "AI Data Literacy HowToGuide.cheatsheet",
+    "tags": "",
+    "mtime": 1758166826,
+    "size": 2424
+  },
+  {
+    "path": "Resources/learning_inputs/AI_Data_Literacy_HowToGuide.md",
+    "folder": "Resources/learning_inputs",
+    "title": "AI Data Literacy HowToGuide",
+    "tags": "",
+    "mtime": 1758996766,
+    "size": 5279
+  },
+  {
+    "path": "Resources/learning_inputs/ai_data_strategy_guide.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "ai data strategy guide.cheatsheet",
+    "tags": "",
+    "mtime": 1758996509,
+    "size": 3222
+  },
+  {
+    "path": "Resources/learning_inputs/ai_data_strategy_guide.md",
+    "folder": "Resources/learning_inputs",
+    "title": "ai data strategy guide",
+    "tags": "",
+    "mtime": 1758996511,
+    "size": 29042
+  },
+  {
+    "path": "Resources/learning_inputs/ai_literacy_guide.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "ai literacy guide.cheatsheet",
+    "tags": "",
+    "mtime": 1758166826,
+    "size": 2419
+  },
+  {
+    "path": "Resources/learning_inputs/ai_literacy_guide.md",
+    "folder": "Resources/learning_inputs",
+    "title": "ai literacy guide",
+    "tags": "",
+    "mtime": 1758996506,
+    "size": 23352
+  },
+  {
+    "path": "Resources/learning_inputs/ai_unemployment_analysis.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "ai unemployment analysis.cheatsheet",
+    "tags": "",
+    "mtime": 1758166909,
+    "size": 2807
+  },
+  {
+    "path": "Resources/learning_inputs/ai_unemployment_analysis.md",
+    "folder": "Resources/learning_inputs",
+    "title": "ai unemployment analysis",
+    "tags": "",
+    "mtime": 1758166906,
+    "size": 7491
+  },
+  {
+    "path": "Resources/learning_inputs/Bitcoin and the Triffin Dilemma - Toward a Multipolar and Decentralized Reserve System.md",
+    "folder": "Resources/learning_inputs",
+    "title": "Bitcoin and the Triffin Dilemma   Toward a Multipolar and Decentralized Reserve System",
+    "tags": "",
+    "mtime": 1757840583,
+    "size": 7323
+  },
+  {
+    "path": "Resources/learning_inputs/blooms_teaching_outline.md",
+    "folder": "Resources/learning_inputs",
+    "title": "Reverse Bloom's Taxonomy: A Teaching Outline for Effective Learning",
+    "tags": "",
+    "mtime": 1758127223,
+    "size": 6537
+  },
+  {
+    "path": "Resources/learning_inputs/career_development_advice.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "career development advice.cheatsheet",
+    "tags": "",
+    "mtime": 1758166835,
+    "size": 2693
+  },
+  {
+    "path": "Resources/learning_inputs/career_development_advice.md",
+    "folder": "Resources/learning_inputs",
+    "title": "career development advice",
+    "tags": "",
+    "mtime": 1758997701,
+    "size": 13334
+  },
+  {
+    "path": "Resources/learning_inputs/economics_finance_training_notes.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "economics finance training notes.cheatsheet",
+    "tags": "",
+    "mtime": 1758997703,
+    "size": 3076
+  },
+  {
+    "path": "Resources/learning_inputs/economics_finance_training_notes.md",
+    "folder": "Resources/learning_inputs",
+    "title": "economics finance training notes",
+    "tags": "",
+    "mtime": 1758166843,
+    "size": 10577
+  },
+  {
+    "path": "Resources/learning_inputs/Economic_Crisis_Agent_Training_2025(AI).md",
+    "folder": "Resources/learning_inputs",
+    "title": "ECONOMIC CRISIS AGENT TRAINING DOCUMENT",
+    "tags": "",
+    "mtime": 1762130267,
+    "size": 71336
+  },
+  {
+    "path": "Resources/learning_inputs/Financial Market Analysis Training DocumentTrump Tariff-Induced Market Correction - October 2025.md",
+    "folder": "Resources/learning_inputs",
+    "title": "Pseudocode for hedge sizing",
+    "tags": "",
+    "mtime": 1760205169,
+    "size": 20124
+  },
+  {
+    "path": "Resources/learning_inputs/Investment LLM Agent Training Guide.md",
+    "folder": "Resources/learning_inputs",
+    "title": "QE Legacy Effects & Market Distortions",
+    "tags": "",
+    "mtime": 1761527191,
+    "size": 29642
+  },
+  {
+    "path": "Resources/learning_inputs/LLM Finance Teaching Framework.md",
+    "folder": "Resources/learning_inputs",
+    "title": "📘 Topics with Actionable Concepts",
+    "tags": "",
+    "mtime": 1761437892,
+    "size": 7065
+  },
+  {
+    "path": "Resources/learning_inputs/michael_assessment.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "michael assessment.cheatsheet",
+    "tags": "",
+    "mtime": 1758166843,
+    "size": 3807
+  },
+  {
+    "path": "Resources/learning_inputs/michael_assessment.md",
+    "folder": "Resources/learning_inputs",
+    "title": "michael assessment",
+    "tags": "",
+    "mtime": 1758166853,
+    "size": 7234
+  },
+  {
+    "path": "Resources/learning_inputs/Prompt_Engineering_Guide_TutorGPT.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "Prompt Engineering Guide TutorGPT.cheatsheet",
+    "tags": "",
+    "mtime": 1758166853,
+    "size": 2979
+  },
+  {
+    "path": "Resources/learning_inputs/Prompt_Engineering_Guide_TutorGPT.md",
+    "folder": "Resources/learning_inputs",
+    "title": "Prompt Engineering Guide TutorGPT",
+    "tags": "",
+    "mtime": 1758997709,
+    "size": 5134
+  },
+  {
+    "path": "Resources/learning_inputs/SOFR Spread Analysis - Emerging Dollar Liquidity Crisis.md",
+    "folder": "Resources/learning_inputs",
+    "title": "The Post-Dollar Architecture: Betting on the Fractured Future",
+    "tags": "",
+    "mtime": 1761434575,
+    "size": 13021
+  },
+  {
+    "path": "Resources/learning_inputs/symposium_journal.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "symposium journal.cheatsheet",
+    "tags": "",
+    "mtime": 1758997704,
+    "size": 2573
+  },
+  {
+    "path": "Resources/learning_inputs/symposium_journal.md",
+    "folder": "Resources/learning_inputs",
+    "title": "symposium journal",
+    "tags": "",
+    "mtime": 1758166853,
+    "size": 5613
+  },
+  {
+    "path": "Resources/learning_inputs/western_dynamism_reflection.cheatsheet.md",
+    "folder": "Resources/learning_inputs",
+    "title": "western dynamism reflection.cheatsheet",
+    "tags": "",
+    "mtime": 1758166853,
+    "size": 2717
+  },
+  {
+    "path": "Resources/learning_inputs/western_dynamism_reflection.md",
+    "folder": "Resources/learning_inputs",
+    "title": "western dynamism reflection",
+    "tags": "",
+    "mtime": 1758996772,
+    "size": 5397
+  },
+  {
+    "path": "Resources/system/training_dashboard.md",
+    "folder": "Resources/system",
+    "title": "📊 Training Dashboard (Dataview)",
+    "tags": "",
+    "mtime": 1757885322,
+    "size": 1569
+  },
+  {
+    "path": "Resources/system/training_mvp_checklist.md",
+    "folder": "Resources/system",
+    "title": "📘 Training MVP Checklist",
+    "tags": "",
+    "mtime": 1757885322,
+    "size": 1233
+  },
+  {
+    "path": "Resources/Templates/area_template.md",
+    "folder": "Resources/Templates",
+    "title": "area template",
+    "tags": "",
+    "mtime": 1756055122,
+    "size": 160
+  },
+  {
+    "path": "Resources/Templates/gating_mini_guide_template.md",
+    "folder": "Resources/Templates",
+    "title": "gating mini guide template",
+    "tags": "",
+    "mtime": 1756663344,
+    "size": 1638
+  },
+  {
+    "path": "Resources/Templates/Metadata Index (Type & Status).md",
+    "folder": "Resources/Templates",
+    "title": "Metadata Index (Type & Status)",
+    "tags": "",
+    "mtime": 1756051153,
+    "size": 249
+  },
+  {
+    "path": "Resources/Templates/project_template.md",
+    "folder": "Resources/Templates",
+    "title": "project template",
+    "tags": "",
+    "mtime": 1756055120,
+    "size": 250
+  },
+  {
+    "path": "Resources/Templates/resource_template.md",
+    "folder": "Resources/Templates",
+    "title": "{{Resource Title}}",
+    "tags": "[youtube, book, article, podcast]                 # add specifics like trading, logistics, pedagogy",
+    "mtime": 1757043305,
+    "size": 1133
+  },
+  {
+    "path": "Resources/Templates/resource_template_simple.md",
+    "folder": "Resources/Templates",
+    "title": "resource template simple",
+    "tags": "",
+    "mtime": 1756051154,
+    "size": 158
+  },
+  {
+    "path": "Resources/Templates/Tag Index Framework.md",
+    "folder": "Resources/Templates",
+    "title": "🏷️ Tag Taxonomy for Second-Brain GPT Assistant",
+    "tags": "",
+    "mtime": 1756787289,
+    "size": 3212
+  },
+  {
+    "path": "Resources/Templates/yaml_frontmatter_templates.md",
+    "folder": "Resources/Templates",
+    "title": "yaml frontmatter templates",
+    "tags": "",
+    "mtime": 1756055122,
+    "size": 2346
+  },
+  {
+    "path": "Resources/Templates/yaml_master_with_guidance.md",
+    "folder": "Resources/Templates",
+    "title": "yaml master with guidance",
+    "tags": "",
+    "mtime": 1756055118,
+    "size": 3830
+  },
+  {
+    "path": "Resources/Templates/QuickAdd/Insight - Templater.md",
+    "folder": "Resources/Templates/QuickAdd",
+    "title": "Insight   Templater",
+    "tags": "",
+    "mtime": 1756787296,
+    "size": 205
+  },
+  {
+    "path": "Resources/Templates/QuickAdd/Pitch - Templater.md",
+    "folder": "Resources/Templates/QuickAdd",
+    "title": "Pitch   Templater",
+    "tags": "",
+    "mtime": 1756787294,
+    "size": 209
+  },
+  {
+    "path": "Resources/Templates/QuickAdd/Summary - Templater.md",
+    "folder": "Resources/Templates/QuickAdd",
+    "title": "Summary   Templater",
+    "tags": "",
+    "mtime": 1756787293,
+    "size": 153
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/agent-learning-checklist.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "agent learning checklist",
+    "tags": "[]",
+    "mtime": 1757787432,
+    "size": 2683
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/AI_Agents_PostgreSQL_Tutor_Guide.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "AI Agents PostgreSQL Tutor Guide",
+    "tags": "[]",
+    "mtime": 1757787432,
+    "size": 4930
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/AI_Data_Literacy_HowToGuide.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "AI Data Literacy HowToGuide",
+    "tags": "[]",
+    "mtime": 1757787291,
+    "size": 4800
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/ai_data_strategy_guide.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "ai data strategy guide",
+    "tags": "[]",
+    "mtime": 1757787433,
+    "size": 28445
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/ai_literacy_guide.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "ai literacy guide",
+    "tags": "[]",
+    "mtime": 1757787472,
+    "size": 22771
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/ai_unemployment_analysis.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "ai unemployment analysis",
+    "tags": "[]",
+    "mtime": 1757799059,
+    "size": 6871
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/career_development_advice.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "career development advice",
+    "tags": "[]",
+    "mtime": 1757787291,
+    "size": 12983
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/economics_finance_training_notes.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "economics finance training notes",
+    "tags": "[]",
+    "mtime": 1757787291,
+    "size": 9952
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/michael_assessment.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "michael assessment",
+    "tags": "[]",
+    "mtime": 1757787291,
+    "size": 6705
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/Prompt_Engineering_Guide_TutorGPT.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "Prompt Engineering Guide TutorGPT",
+    "tags": "[]",
+    "mtime": 1757799066,
+    "size": 4587
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/symposium_journal.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "symposium journal",
+    "tags": "[]",
+    "mtime": 1757787291,
+    "size": 5070
+  },
+  {
+    "path": "Resources/backups/2025-09-13/Resources/learning_inputs/western_dynamism_reflection.md",
+    "folder": "Resources/backups/2025-09-13/Resources/learning_inputs",
+    "title": "western dynamism reflection",
+    "tags": "[]",
+    "mtime": 1757787291,
+    "size": 4923
+  }
+]
