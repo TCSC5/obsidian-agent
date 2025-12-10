@@ -207,12 +207,12 @@ def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool,
             new_text = yaml_dump(fm) + body.lstrip()
 
             if dry_run:
-                print(f"[DRY] Would add YAML → {p.name}")
+                print(f"[DRY] Would add YAML -> {p.name}")
             else:
                 if create_backups:
                     shutil.copy2(p, p.with_suffix(".md.bak"))
                 p.write_text(new_text, encoding="utf-8")
-                print(f"[WROTE] Added YAML → {p.name}")
+                print(f"[WROTE] Added YAML -> {p.name}")
             updated = True
 
         else:
@@ -224,12 +224,12 @@ def scan_resources(root_dir: Path, backfill_missing: bool, create_backups: bool,
                     new_text = yaml_dump(fm) + body
 
                     if dry_run:
-                        print(f"[DRY] Would backfill YAML → {p.name}")
+                        print(f"[DRY] Would backfill YAML -> {p.name}")
                     else:
                         if create_backups:
                             shutil.copy2(p, p.with_suffix(".md.bak"))
                         p.write_text(new_text, encoding="utf-8")
-                        print(f"[WROTE] Backfilled YAML → {p.name}")
+                        print(f"[WROTE] Backfilled YAML -> {p.name}")
                     updated = True
 
         fm["_path"] = str(p)
@@ -255,16 +255,16 @@ def write_indexes(entries: list[dict], index_md_path: Path, index_json_path: Pat
     md = TEMPLATE_MD.format(updated=datetime.now().strftime("%Y-%m-%d %H:%M"), rows="\n".join(rows))
 
     if dry_run:
-        print(f"[DRY] Would write index → {index_md_path}")
-        print(f"[DRY] Would write JSON → {index_json_path}")
+        print(f"[DRY] Would write index -> {index_md_path}")
+        print(f"[DRY] Would write JSON -> {index_json_path}")
     else:
         index_md_path.write_text(md, encoding="utf-8")
         index_json_path.write_text(
             json.dumps(entries, indent=2, ensure_ascii=False),
             encoding="utf-8"
         )
-        print(f"[WROTE] Index MD → {index_md_path}")
-        print(f"[WROTE] Index JSON → {index_json_path}")
+        print(f"[WROTE] Index MD -> {index_md_path}")
+        print(f"[WROTE] Index JSON -> {index_json_path}")
 
 
 def main():
