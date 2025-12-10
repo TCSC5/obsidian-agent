@@ -142,7 +142,7 @@ def ensure_fields(fm: dict, filename: str | None = None, verbose: bool = False) 
     if not normalized["domain"]:
         normalized["domain"] = ["needs_domain"]
         if verbose:
-            print("  [verbose] No domain found → using default 'needs_domain'")
+            print("  [verbose] No domain found -> using default 'needs_domain'")
 
     return normalized
 
